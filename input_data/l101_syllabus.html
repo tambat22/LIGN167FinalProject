@@ -1,0 +1,1358 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="author" content="Will Styler - Fall 2023" />
+  <title>LIGN 101 - Introduction to the Study of Language</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <style type="text/css">
+  /*
+   * I add this to html files generated with pandoc.
+   * Originally from https://gist.github.com/killercup/5917178
+   */
+
+  html {
+      overflow-y: scroll;
+      -webkit-text-size-adjust: 100%;
+      -ms-text-size-adjust: 100%;
+  }
+
+  header{
+      padding:0em;
+      margin-bottom:0em;
+  }
+
+  body {
+      color: #444;
+      font-family: "Source Sans 3", Helvetica-Neue, Helvetica, Sans;
+      line-height: 1.4;
+      padding: 0.5em;
+      margin: auto;
+      max-width: 55em;
+      background: #fefefe;
+  }
+
+  a {
+      color: #2171b5;
+      text-decoration: underline;
+  }
+
+  tr:nth-child(even) {background: #F8F8F8}
+  tr:nth-child(odd) {background: #FFF}
+
+  a:visited {
+      color: #2171b5;
+      text-decoration: none;
+  }
+
+  a:focus {
+      outline: thin dotted;
+  }
+
+  *::-moz-selection {
+      background: rgba(255, 255, 0, 0.3);
+      color: #000;
+  }
+
+  *::selection {
+      background: rgba(255, 255, 0, 0.3);
+      color: #000;
+  }
+
+  a::-moz-selection {
+      background: rgba(255, 255, 0, 0.3);
+      color: #0645ad;
+  }
+
+  a::selection {
+      background: rgba(255, 255, 0, 0.3);
+      color: #0645ad;
+  }
+
+  p {
+      margin: 0.75em 0;
+  }
+
+  img {
+      max-width: 100%;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+      color: #111;
+      line-height: 80%;
+      margin-top: 1.45em;
+      margin-bottom: 0.75em;
+      font-weight: normal;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+      font-weight: bold;
+  }
+
+  danger {
+      color:#ff1900;    
+      font-weight: bold;
+      padding: 1em;
+      font-size: 1em;
+      display: block;
+      border: 2px solid #ff1900;
+  }
+
+
+
+  h1 {
+      font-size: 2em;
+      line-height: 1.25;
+      color:  #084594;
+
+      border-bottom: 2px solid #084594;
+  }
+
+  h1.title {
+      margin-top:0.2em;
+      font-size: 2em;
+      line-height: 1.25;
+      margin-bottom:0em;
+  }
+
+  h2 {
+      font-size: 1.5em;
+          color:  #084594;
+          line-height: 1.55em;
+      border-bottom: 1px solid #83a2c9;
+      padding-bottom: 3px;
+
+  }
+
+  h3 {
+      font-size: 1.2em;
+          line-height: 1.35em;
+  }
+
+
+  h4 {
+      font-size: 1.1em;
+          line-height: 1.25em;
+      border-bottom: 1px dotted #000;
+  }
+
+  h5 {
+      font-size: 1em;
+  }
+
+  h6 {
+      font-size: 0.9em;
+  }
+
+  blockquote {
+      color: #666666;
+      margin: 0;
+      padding-left: 3em;
+      border-left: 0.5em #EEE solid;
+  }
+
+  hr {
+      display: block;
+      height: 2px;
+      border: 0;
+      border-top: 1px solid #aaa;
+      border-bottom: 1px solid #eee;
+      margin: 1em 0;
+      padding: 0;
+  }
+
+  pre, code, kbd, samp {
+      color: #000;
+      font-family: monospace, monospace;
+      _font-family: 'courier new', monospace;
+      font-size: 0.98em;
+  }
+
+  pre {
+      white-space: pre;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+  }
+
+  .answer {
+      color:#CC0033;
+      font-style:italic;
+  }
+
+  b, strong {
+      font-weight: bold;
+  }
+
+  dfn {
+      font-style: italic;
+  }
+
+  ins {
+      background: #ff9;
+      color: #000;
+      text-decoration: none;
+  }
+
+  mark {
+      background: #ff0;
+      color: #000;
+      font-style: italic;
+      font-weight: bold;
+  }
+
+  sub, sup {
+      font-size: 75%;
+      line-height: 0;
+      position: relative;
+      vertical-align: baseline;
+  }
+
+  sup {
+      top: -0.5em;
+  }
+
+  sub {
+      bottom: -0.25em;
+  }
+
+  ul, ol {
+      margin: 0.5em 0;
+      padding: 0em 0em 0em 1em;
+  }
+
+  li p:last-child {
+      margin-bottom: 0;
+  }
+
+  ul ul, ol ol {
+      margin: .3em 0;
+  }
+
+  dl {
+      margin-bottom: 1em;
+  }
+
+  dt {
+      font-weight: bold;
+      margin-bottom: .8em;
+  }
+
+  dd {
+      margin: 0 0 .8em 2em;
+  }
+
+  dd:last-child {
+      margin-bottom: 0;
+  }
+
+  img {
+      border: 0;
+      -ms-interpolation-mode: bicubic;
+      vertical-align: middle;
+  }
+
+  figure {
+      display: block;
+      text-align: center;
+      margin: 1em 0;
+  }
+
+  figure img {
+      border: none;
+      margin: 0 auto;
+  }
+
+  figcaption {
+      font-size: 0.8em;
+      font-style: italic;
+      margin: 0 0 .8em;
+  }
+
+  table {
+      margin-bottom: 2em;
+      border-bottom: 1px solid #ddd;
+      border-right: 1px solid #ddd;
+      border-spacing: 0;
+      border-collapse: collapse;
+  }
+
+  table th {
+      padding: .2em 1em;
+      background-color: #eee;
+      border-top: 1px solid #ddd;
+      border-left: 1px solid #ddd;
+  }
+
+  table td {
+      padding: .2em 1em;
+      border-top: 1px solid #ddd;
+      border-left: 1px solid #ddd;
+      vertical-align: top;
+  }
+
+  .author {
+      font-size: 1.2em;
+      text-align: center;
+  }
+
+  @media only screen and (min-width: 480px) {
+      body {
+  	font-size: 14px;
+      }
+  }
+  @media only screen and (min-width: 768px) {
+      body {
+  	font-size: 16px;
+      }
+  }
+  @media print {
+      * {
+  	background: transparent !important;
+  	color: black !important;
+  	filter: none !important;
+  	-ms-filter: none !important;
+      }
+
+      body {
+  	font-size: 12pt;
+  	max-width: 100%;
+      }
+
+      a, a:visited {
+  	text-decoration: underline;
+      }
+
+      hr {
+  	height: 1px;
+  	border: 0;
+  	border-bottom: 1px solid black;
+      }
+
+      a[href]:after {
+  	content: " (" attr(href) ")";
+      }
+
+      abbr[title]:after {
+  	content: " (" attr(title) ")";
+      }
+
+      .ir a:after, a[href^="javascript:"]:after, a[href^="#"]:after {
+  	content: "";
+      }
+
+      pre, blockquote {
+  	border: 1px solid #999;
+  	padding-right: 1em;
+  	page-break-inside: avoid;
+      }
+
+      tr, img {
+  	page-break-inside: avoid;
+      }
+
+      img {
+  	max-width: 100% !important;
+      }
+
+      @page :left {
+  	margin: 15mm 20mm 15mm 10mm;
+      }
+
+      @page :right {
+  	margin: 15mm 10mm 15mm 20mm;
+      }
+
+      p, h2, h3 {
+  	orphans: 3;
+  	widows: 3;
+      }
+
+      h2, h3 {
+  	page-break-after: avoid;
+      }
+  }
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">LIGN 101 - Introduction to the Study of Language</h1>
+<p class="author">Will Styler - Fall 2023</p>
+</header>
+<h2 id="course-information">Course Information</h2>
+<p>Language is what makes us human, but how does it work? This course
+focuses on speech sounds and sound patterns, how words are formed,
+organized into sentences, and understood, how language changes, and how
+it is learned.</p>
+<ul>
+<li><strong>Class Time:</strong> Tuesdays and Thursdays
+12:30-1:50pm</li>
+<li><strong>Class Location:</strong> CENTR 212</li>
+<li><strong>Class Modality:</strong> In-person attendance required, with
+Podcasts (See “Attendance and Modality”)</li>
+</ul>
+<h3 id="teaching-team">Teaching Team</h3>
+<h4 id="dr.-will-styler---instructor">Dr. Will Styler - Instructor</h4>
+<ul>
+<li>IPA: [wɪɫ ˈstajlɚ]</li>
+<li><a href="https://www.mypronouns.org/">Pronouns</a>: he/him</li>
+<li>Student Hours: Tuesdays 2:00-3:30pm in APM 4151, meet with any IA,
+or use <a href="https://savethevowels.org/bookme"
+class="uri">https://savethevowels.org/bookme</a></li>
+<li>Email: <a href="mailto:wstyler@ucsd.edu"
+class="email">wstyler@ucsd.edu</a> (Please email, don’t use Canvas
+Messages)</li>
+</ul>
+<h4 id="ebru-evcen---graduate-instructional-assistant">Ebru Evcen -
+Graduate Instructional Assistant</h4>
+<ul>
+<li>IPA: [ˈebɾʊ ˈevdʒɛn]</li>
+<li><a href="https://www.mypronouns.org/">Pronouns</a>: she/her</li>
+<li>Student Hours: Thursdays 2-3pm in APM 3351C</li>
+<li>Email: <a href="mailto:eevcen@ucsd.edu"
+class="email">eevcen@ucsd.edu</a></li>
+</ul>
+<h4 id="olivia-griffin---graduate-instructional-assistant">Olivia
+Griffin - Graduate Instructional Assistant</h4>
+<ul>
+<li>IPA: [oˈlɪviˌʌ ˈgɹɪfɪn]</li>
+<li><a href="https://www.mypronouns.org/">Pronouns</a>: she/her</li>
+<li>Student Hours:  Fridays 1-2pm in APM 3351B</li>
+<li>Email: <a href="mailto:ogriffin@ucsd.edu"
+class="email">ogriffin@ucsd.edu</a></li>
+</ul>
+<h4 id="krystal-toy---undergraduate-instructional-assistant">Krystal Toy
+- Undergraduate Instructional Assistant</h4>
+<ul>
+<li>IPA: [ˈkɹɪstəl ˈtɔj]<br />
+</li>
+<li><a href="https://www.mypronouns.org/">Pronouns</a>: she/her</li>
+<li>Student Hours: Wednesdays 4-5pm on <a
+href="https://us05web.zoom.us/j/7650095498?pwd=B4rSpL4STximw4GwCl3bCtX4tFEVGb.1#success">Krystal’s
+Zoom Room</a> (Meeting ID: 765 009 5498 Passcode: LIGN101)</li>
+<li>Email: &lt;<a
+href="mailto:krtoy@ucsd.edu">krtoy@ucsd.edu</a>&gt;</li>
+</ul>
+<h4 id="guantong-zhang---undergraduate-instructional-assistant">Guantong
+Zhang - Undergraduate Instructional Assistant</h4>
+<ul>
+<li>IPA:  [kwán.tʰʊ̌ŋ ʈ͡ʂɑ́ŋ]</li>
+<li><a href="https://www.mypronouns.org/">Pronouns</a>: he/him</li>
+<li>Student Hours: Mondays 3-4pm at AP&amp;M 3331A</li>
+<li>Email: <a href="mailto:g4zhang@ucsd.edu"
+class="email">g4zhang@ucsd.edu</a></li>
+</ul>
+<h3 id="section-information">Section Information</h3>
+<ul>
+<li><strong>Thursday 4pm (A04):</strong> Led by Ebru, in SOLIS 109</li>
+<li><strong>Friday 9am (A01):</strong> Led by Ebru and Krystal, in YORK
+3000A</li>
+<li><strong>Friday 10am (A03):</strong> Led by Olivia and Guantong, in
+YORK 3000A</li>
+<li><strong>Friday 12pm (A02):</strong> Led by Olivia, in CENTR 220</li>
+</ul>
+<h2 id="course-resources">Course Resources</h2>
+<ul>
+<li><p><strong>Syllabus/Course Website:</strong> <a
+href="https://savethevowels.org/101"
+class="uri">https://savethevowels.org/101</a>, Slides are linked below
+in the Course Schedule.</p></li>
+<li><p><strong>Podcast:</strong> Course videos will be posted after
+lectures on Canvas under ‘Media Gallery’, and potentially also at <a
+href="http://podcast.ucsd.edu" class="uri">http://podcast.ucsd.edu</a>.
+Note that podcasts are a bonus, not an obligation, and I can’t guarantee
+podcasts for every session due to technical issues, so skip class at
+your own risk.</p></li>
+<li><p><strong>Canvas:</strong> This course will be using Canvas for
+discussions, to post course content, files, and to manage grades. Should
+you need any technical assistance with Canvas, please send an email to
+canvas@ucsd.edu.</p></li>
+<li><p><strong>Discord:</strong> By popular demand, the course has a
+Discord server for chat, discussion, asking questions, sharing of
+linguistics memes, and the finding and interacting with study partners.
+The invite link is posted on Canvas.</p></li>
+<li><p><strong>Gradescope:</strong> We’ll be using <a
+href="https://www.gradescope.com/">Gradescope</a> for homework and quiz
+submission this quarter. Once you’ve created an account <em>using your
+<span class="citation" data-cites="ucsd.edu">@ucsd.edu</span> email
+address</em>, you’ll be able to see the course, as well as to upload
+your assignments. If you have any problems with this process, please
+alert your instructor.</p></li>
+<li><p><strong>Zoom:</strong> We’ll be using Zoom in case any class
+sessions or office hours must be conducted online. For any class-related
+Zoom work, please follow <a
+href="http://wstyler.ucsd.edu/onlinestudents/">Will’s Student Guidelines
+for Online Classes</a>.</p></li>
+<li><p><strong>WebClicker:</strong> This quarter, for getting instant
+feedback and measuring participation (‘clicking in’), we’re going to use
+<a href="https://webclicker.web.app/"
+class="uri">https://webclicker.web.app/</a> via your own device. This
+service is in development still, but replaces the $60+ iClicker devices
+in your budget, so I hope you’ll bear with us in testing to make sure
+this is ready to go. The course registration code is
+<strong>FBPURC</strong>, please make a (free) account and register for
+this class using that code. Please make sure to accurately input your
+student ID, so we can match your scores to your self, even when students
+share names.</p></li>
+<li><p><strong>Study Guide:</strong> Here’s <a
+href="http://savethevowels.org/docs/l101_study_guide.html">a link to the
+Study Guide</a></p></li>
+</ul>
+<h3 id="course-materials">Course Materials</h3>
+<p><strong>Course Textbook:</strong> For students who would like an
+accompanying textbook, I’ll recommend <em>An Introduction to
+Language</em> by Fromkin, Rodman and Hyams, as it is the best and
+clearest introductory text available to the field right now. Different
+chapters of the book will correspond to our lecture themes pretty
+straightforwardly, and you can get some additional information by
+reading them, if you’d like.</p>
+<p><strong>Important Note</strong>: Given the textbook’s price, this
+book is <strong>optional, and all readings are recommended, but not
+required</strong>, and no exercises from the book will be assigned. The
+11th Edition (ISBN: 978-1337559577) is currently in press,
+<em>however</em>, given the book’s pricing, I <em>highly encourage</em>
+you to find the book used or in an electronic format, and the 9th and
+10th US Editions are perfectly fine as written companions to the course
+material (ISBN: 978-1-4282-6392-5 (9th) and 9781133310686 (10th)). We
+will not be using the Cengage ‘Digital Platform’ or any of the add-ons,
+so please <strong>do not</strong> buy digital content ‘bundles’ or any
+such other upsells.</p>
+<p>I’m also working with the library to put a few copies on reserve, so
+you should be able to access it there as well, provided you’re not
+waiting until the last minute.</p>
+<h2 id="course-schedule">Course Schedule</h2>
+<p>Weeks are listed by the Monday they start on. Although all due-dates
+are fixed (barring extensive notice), given everything, expect things to
+change some. Please check this page regularly. Click an individual talk
+title to see that day’s slides (broken links indicate that slides are
+not yet posted). <em>You can also add _handout before .html in the
+slides link to see an autogenerated version formatted for printing and
+note-taking.</em></p>
+<p>For each week, you’ll have in class learning sessions Tuesday and
+Thursday, as well as an assigned ‘Discussion Section’ which will allow
+you to engage directly with the material. All assignments are due on
+Sundays following the class session at 11:59pm (so Week 1’s ‘Due Sunday’
+assignment is due on the Sunday before Week 2, at 11:59pm). <em>In
+places where Canvas and the Syllabus differ in due dates, the syllabus
+is the authoritative source!</em></p>
+<h4 id="week-0-starts-sep.-28">Week 0 (Starts Sep. 28)</h4>
+<ul>
+<li><strong>Tuesday</strong>: NO CLASS</li>
+<li><strong>Thursday September 28th</strong>: <a
+href="http://savethevowels.org/talks/l101_1_intro.html">Intro to
+Linguistics</a></li>
+<li><strong>Section</strong>: Introducing yourselves and Language
+Variation
+<ul>
+<li><strong>Note that sections WILL be held as scheduled on the 28th and
+29th</strong></li>
+</ul></li>
+</ul>
+<h4 id="week-1-oct.-2---introducing-language-and-dialect">Week 1
+(Oct. 2) - Introducing Language and Dialect</h4>
+<ul>
+<li><strong>Tuesday</strong>: <a
+href="http://savethevowels.org/talks/l101_2_whatislanguage.html">What is
+Language?</a></li>
+<li><strong>Thursday</strong>: <strong>CLASS IS ASYNCHRONOUS, NO
+MEETING</strong><a
+href="http://savethevowels.org/talks/l101_3_whatisalanguage.html">What
+is a language?</a>
+<ul>
+<li><em>For this class, you’ll watch a video on your own time instead of
+coming to class, as I’ll need to travel for a funeral. Sections are
+unaffected, and will be held.</em></li>
+</ul></li>
+<li><strong>Section</strong>: Working with Language Data</li>
+<li><strong>Due Sunday 11:59pm</strong>: Complete Canvas Discussion -
+Introduction #FinAid</li>
+<li><strong>Bonus Content</strong>: <a
+href="https://www.ted.com/talks/lera_boroditsky_how_language_shapes_the_way_we_think">Lera
+Boroditsky’s TED Talk</a></li>
+</ul>
+<h4 id="week-2-oct.-9---speech">Week 2 (Oct. 9) - Speech</h4>
+<ul>
+<li><strong>Tuesday</strong>: <a
+href="http://savethevowels.org/talks/l101_4_phonetics1.html">Phonetics
+I</a></li>
+<li><strong>Thursday</strong>: <a
+href="http://savethevowels.org/talks/l101_5_phonetics2.html">Phonetics
+II</a></li>
+<li><strong>Section</strong>: Working with the IPA</li>
+<li><strong>Bonus Content</strong>: <a
+href="https://wstyler.ucsd.edu/posts/difference_schwa_wedge.html">Differentiating
+Schwa and Wedge</a></li>
+<li><strong>Due Sunday 11:59pm</strong>: No assignment due</li>
+</ul>
+<h4 id="week-3-oct.-16---sound-patterns-in-language">Week 3 (Oct. 16) -
+Sound Patterns in Language</h4>
+<ul>
+<li><strong>Tuesday</strong>: <a
+href="http://savethevowels.org/talks/l101_6_phonology1.html">Phonology
+I</a></li>
+<li><strong>Thursday</strong>: <a
+href="http://savethevowels.org/talks/l101_6_phonology2.html">Phonology
+II</a></li>
+<li><strong>Section</strong>: Starting with phonology</li>
+<li><strong>Due Sunday 11:59pm</strong>: HW1 - Interactive IPA
+Practice</li>
+</ul>
+<h4 id="week-4-oct.-23---morphohonological-phon">Week 4 (Oct. 23) -
+Morphohonological Phon</h4>
+<ul>
+<li><strong>Tuesday</strong>: <a
+href="http://savethevowels.org/talks/l101_6_phonology3.html">Phonology
+III</a></li>
+<li><strong>Thursday</strong>: <a
+href="http://savethevowels.org/talks/l101_8_morphology1.html">Morphology
+I</a></li>
+<li><strong>Section</strong>: Phonology (Continued)</li>
+<li><strong>Bonus Content</strong>: <a
+href="https://www.youtube.com/watch?v=ZAjUBNwWEys&amp;feature=youtu.be">Proto-Bantu
+Dataset Walkthrough</a></li>
+<li><strong>Due Sunday 11:59pm</strong>: HW2 - Phonetics</li>
+</ul>
+<h4 id="week-5-oct.-30---words-are-weird">Week 5 (Oct. 30) - Words are
+Weird</h4>
+<ul>
+<li><strong>Tuesday</strong>: <a
+href="http://savethevowels.org/talks/l101_9_morphology2.html">Morphology
+II</a></li>
+<li><strong>Thursday</strong>: <a
+href="http://savethevowels.org/talks/l101_11_syntax1.html">Syntax
+I</a></li>
+<li><strong>Section</strong>: Morphology</li>
+<li><strong>Due Sunday 11:59pm</strong>: HW3 - Phonology</li>
+</ul>
+<h4 id="week-6-nov.-6---syntax-is-a-life-sentence">Week 6 (Nov. 6) -
+Syntax is a life sentence</h4>
+<ul>
+<li><strong>Tuesday</strong>: <a
+href="http://savethevowels.org/talks/l101_12_syntax2.html">Syntax
+II</a></li>
+<li><strong>Thursday</strong>: <a
+href="http://savethevowels.org/talks/l101_13_syntax3.html">Syntax
+III</a></li>
+<li><strong>Section</strong>: <strong>NO SECTION (Veterans
+Day)</strong></li>
+<li><strong>Bonus Content</strong>: <a
+href="https://www.youtube.com/watch?v=yzr-MAMTK5k">Creating syntax trees
+with bracket notation</a></li>
+<li><strong>Due Sunday 11:59pm</strong>: No assignment due</li>
+</ul>
+<h4 id="week-7-nov.-13---giving-life-meaning">Week 7 (Nov. 13) - Giving
+life meaning</h4>
+<ul>
+<li><strong>Tuesday</strong>: <a
+href="http://savethevowels.org/talks/l101_14_semantics1.html">Semantics
+I</a></li>
+<li><strong>Thursday</strong>: <a
+href="http://savethevowels.org/talks/l101_15_semantics2.html">Semantics
+II</a></li>
+<li><strong>Section</strong>: Syntax</li>
+<li><strong>Due Sunday 11:59pm</strong>: HW4 - Syntactic Tree
+Basics</li>
+</ul>
+<h4 id="week-8-nov.-20---meaning-in-the-world">Week 8 (Nov. 20) -
+Meaning in the World</h4>
+<ul>
+<li><strong>Tuesday</strong>: <a
+href="http://savethevowels.org/talks/l101_16_pragmatics.html">Pragmatics</a></li>
+<li><strong>Section</strong>: <strong>NO SECTION (Thanksgiving
+Break)</strong></li>
+<li><strong>Due Sunday 11:59pm</strong>: HW5 - Syntax</li>
+</ul>
+<h4 id="week-9-nov.-27---grab-bag">Week 9 (Nov. 27) - Grab Bag</h4>
+<ul>
+<li><strong>Tuesday</strong>: <a
+href="https://savethevowels.org/talks/l101_18_nlp.html">Natural Language
+Processing</a></li>
+<li><strong>Thursday</strong>: Guest Talk (TBD)</li>
+<li><strong>Section</strong>: Turkish Syntax</li>
+<li><strong>Due Sunday 11:59pm</strong>: HW6 - Semantics and
+Pragmatics</li>
+</ul>
+<h4 id="week-10-dec.-4---course-outro">Week 10 (Dec. 4) - Course
+Outro</h4>
+<ul>
+<li><strong>Tuesday</strong>: <a
+href="http://savethevowels.org/talks/l101_17_languagefamilies.html">Language
+Families</a></li>
+<li><strong>Thursday</strong>: <a
+href="http://savethevowels.org/talks/l101_20_outro.html">Translation and
+Course Conclusion</a></li>
+<li><strong>Section</strong>: Final Exam Review</li>
+<li><strong>Due Sunday 11:59pm</strong>: No Assignment Due</li>
+</ul>
+<h4 id="finals-week---final-exam">Finals Week - Final Exam</h4>
+<ul>
+<li><strong>December 15th, 2023 from 11:30am-2:30pm:</strong>
+<strong>Final Exam in our Normal Classroom</strong></li>
+</ul>
+<h2 id="student-resources-for-support-learning-and-interaction">Student
+Resources for Support, Learning, and Interaction</h2>
+<p>Please see my <a href="http://wstyler.ucsd.edu/resources/">complete
+listing of student resources</a> for information on student support
+(e.g. counseling, crisis centers, resource centers), resources for
+learning (libraries, writing help, and more), resources for engaging
+with faculty (e.g. Coffee with a Prof, Letters of recommendation), and
+technical resources.</p>
+<h2 id="learning-outcomes">Learning Outcomes</h2>
+<p>As this class is a large survey course, the goal is to build
+familiarity with facts about languages, terms which reflect your more
+linguistic understanding of Language, and with analytical techniques and
+skills like IPA transcription, phonological analysis, and building
+syntactic constituency trees.</p>
+<p>A more granular list of terms, skills, and questions you should be
+able to answer by the end of the class can be found in <a
+href="https://wstyler.ucsd.edu/docs/l101_study_guide.html">the course
+study guide</a>.</p>
+<h2 id="effort-matters">Effort Matters!</h2>
+<p>In all of my classes, teaching is a collaborative process, and my
+goal is straightforward: I want to help students who put in strong
+effort to get a great grade.</p>
+<p>So, you will succeed in this class if you…</p>
+<ul>
+<li>Attend scheduled course meetings, and watch recordings or talk to
+your IAs if you miss sessions</li>
+<li>Pay attention to the schedule and start on assignments early, in
+part so you can…</li>
+<li>Come to office hours to ask any questions</li>
+<li>Practice effective self care, look after your physical and mental
+health, and <a href="http://wstyler.ucsd.edu/resources/">take advantage
+of student resources</a></li>
+<li>Reach out and let us know if something’s keeping you from doing your
+work effectively ASAP
+<ul>
+<li>I’m <em>much more</em> likely to offer extensions and exceptions
+before the due date than after the fact. We can work out documentation
+later.</li>
+</ul></li>
+</ul>
+<p>We will bend over backwards to help students who are sincerely doing
+their best to succeed in this class, and will always do our best to help
+students who are trying to recover, even after a rough start. And of
+course, we’re also always happy to help when documentable circumstances
+beyond your control come up which prevent you from making your full
+effort.</p>
+<p>That said, if you’re “blowing off” the class, skipping class,
+starting assignments at the last minute, cutting corners, <a
+href="https://savethevowels.org/gradechanges">grade begging, grubbing,
+or lawyering</a>, or turning in low-effort and low-integrity work, it’s
+disrespectful to me and the rest of the instructional team. As such, if
+you make these decisions, you’ll find us much less eager to help,
+accommodate, recommend, or make policy exceptions for you.</p>
+<p>So, we’re on the same team, and we want to help you succeed, but the
+key is demonstrating strong effort, and we’re going to put as much
+effort into helping you succeed as you do.</p>
+<h2 id="assessing-learning">Assessing Learning</h2>
+<p>Your final grade is based on the below formula, and will be
+automatically calculated in Canvas:</p>
+<table>
+<thead>
+<tr class="header">
+<th>Item</th>
+<th style="text-align: center;">% of Final Grade</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Homework Assignments</td>
+<td style="text-align: center;">60%</td>
+</tr>
+<tr class="even">
+<td>Final Exam</td>
+<td style="text-align: center;">20%</td>
+</tr>
+<tr class="odd">
+<td>Section Participation</td>
+<td style="text-align: center;">10%</td>
+</tr>
+<tr class="even">
+<td>Class Participation</td>
+<td style="text-align: center;">10%</td>
+</tr>
+</tbody>
+</table>
+<p>The grading scale used for this course is the <a
+href="http://blink.ucsd.edu/go/grading">UCSD standard scale</a>, where
+A+ is 97% or more, A is 96.99% to 93%, A- is 92.99 to 90%, B+ is 89.99
+to 87%, and so forth. Plus and Minus grades are not assigned below “C”,
+and no grade changes will be considered from A to A+. “Pass” is any
+grade 70% or higher.</p>
+<h3 id="homework">Homework</h3>
+<p>Homeworks will be submitted online through Gradescope, and you’ll
+turn them before Midnight on the designated day(s). These will be
+designed to test your understanding of the concepts and materials given
+you, and to go beyond just reciting facts.</p>
+<p>We will automatically drop your lowest homework. You will still be
+responsible for knowing the material covered in any dropped
+homeworks.</p>
+<ul>
+<li><p>Because we drop your lowest grade automatically, <strong>we won’t
+accept late homework without prior arrangements</strong>, and no make-up
+assignments are given. If you know you won’t be able to turn it in on
+the due date, you can complete and submit it early or drop it like it’s
+hot.</p></li>
+<li><p>It’s wise to save your answers in a document on your own machine,
+and copy-paste into Gradescope as you go, both so you can work offline,
+and so that you’ve got an archive of your answers in case you
+accidentally delete a response or the like. Also, please confirm your
+answer submissions before the due date, as due to past students taking
+advantage, we won’t be making grading exceptions for ‘omg gradescope
+didn’t save my answers!’ or ‘I couldn’t access Gradescope!’.</p></li>
+<li><p>Even if you collaborate with other people, your assignments
+should be unique, and should reflect your own words and understanding.
+Make sure your words, examples, and sentences are your own, even if you
+worked with a group. Also remember that ‘checking answers’ with a study
+group is as likely to make you choose a wrong answer as a right one, as
+‘a person with two watches never knows what time it really is’.</p></li>
+<li><p>To reflect the new world of Large Language Model (e.g. ChatGPT)
+cheating, which is a <em>really</em> bad idea by which many will still
+be tempted, student answers containing <em>completely false</em>,
+<em>baseless</em>, or seemingly <em>confabulated</em> (made up from
+nowhere) information or references will be heavily penalized. So, please
+make sure you understand everything you’re writing, and if you’re not
+clear on something, come talk to us in office hours!</p></li>
+<li><p>All assignments are weighted equally and are equally
+important.</p></li>
+</ul>
+<h3 id="final-exam">Final Exam</h3>
+<p>The final exam is meant to assess your learning of the concepts and
+facts presented in the class. I hope that we will be in person such that
+this will be an in-class exam, in the normal classroom and will count
+for a large proportion of your final grade. Exams will be cumulative,
+covering all material discussed to that point. My exam policies are
+discussed at <a href="http://savethevowels.org/exam"
+class="uri">http://savethevowels.org/exam</a>.</p>
+<p>If serious (and documentable) reasons will prevent you from taking an
+exam on the scheduled date, or if you will require specific
+accommodations during an exam, <strong>you must contact the instructor
+at least two weeks prior to each exam to request an exception.</strong>
+Students who are unable to attend an exam for documentable good cause
+reasons will be able to make up the exam via a <a
+href="https://wstyler.ucsd.edu/oralexam/">synchronous oral exam</a>,
+asking about and discussing material from the class and exam, via Zoom
+or in person, with the instructor. Details on this process are available
+<a href="https://wstyler.ucsd.edu/oralexam/">here</a>.</p>
+<p>OSD Accommodation exams (e.g. 1.5x time, ‘own room’ or ‘reduced
+distraction environment’) will be handled by the <a
+href="https://tritontesting.ucsd.edu/">Triton Testing Center</a>. For
+more details on how this process works, see <a
+href="https://tritontesting.ucsd.edu/for-students/index.html">this
+site</a>. If you have specific documented needs which you feel are in
+conflict with this option or testing solution, or have an additional
+accommodation which you feel requires different testing approach
+(e.g. exams must be read aloud), please contact me by Week 3 of the
+quarter.</p>
+<h3 id="class-participation">Class Participation</h3>
+<p>Interactive polling will be used in this course to make class more
+interactive, to gauge your understanding, and to help reinforce key
+concepts. Most lectures will contain some clicker questions, answerable
+by clicking in. As this is meant for participation (rather than
+evaluation), in this class, every answer you give, right or wrong, will
+contribute equally to this grade.</p>
+<p>More importantly, as clicking is meant to be participation focused
+(rather than ‘taking attendance’), and as we want to discourage students
+from attending class while ill, <strong>we will drop half of the total
+clicker points possible</strong>. This means that you can still earn
+100% for clicker participation if you miss half of the clicker points
+(that is, of the total number of clicker points across all the lectures,
+you can miss up to half). So, if you have a tech issue or miss class,
+don’t worry about it, and no make-up clicking methods are available
+without good cause. Note, though, that regular attendance when healthy
+is a good way to show us effort, and earns our respect, and ‘clicking
+in’ from home is considered an academic integrity violation. This should
+be a very easy 10% of your grade to earn.</p>
+<h3 id="section-participation">Section Participation</h3>
+<p>This class features mandatory sections. The purpose of these
+discussion sections is to work with and reinforce concepts and processes
+described in Lecture in LIGN 101. As such, the key to success is active
+participation. As such, you will be awarded a single point of
+participation grade each day you are present and participating in
+section. Again, to discourage people from coming to class sick and to
+avoid having to sort through requests for excused absences, <strong>we
+will drop up to five missed days of section participation</strong>.</p>
+<p>It is entirely up to the IA’s discretion whether you are awarded your
+participation grade for a given session. To make sure you’re given full
+points, you would be wise to…</p>
+<ul>
+<li>Attend your scheduled section (obviously)</li>
+<li>Arrive on time, and leave when the section is dismissed</li>
+<li>Show up healthy, awake, clear-headed, and ready to dig into language
+data!</li>
+<li>Participate actively in group work or breakout rooms</li>
+<li>Ask questions, whether of your groupmates or your IA, whenever they
+come up</li>
+<li>If your scheduled section occurs on a university holiday, please try
+to attend another, or visit one of us in office hours to discuss the
+material covered.</li>
+</ul>
+<p>If you need to change the section you’re attending, please email the
+IA whose section you’d like to switch into and ask for permission. As
+they are often limited by room size, their ‘yes’ or ‘no’ is final.</p>
+<h3 id="extra-credit">Extra Credit</h3>
+<p>There are two ways to get extra credit for this class:</p>
+<ul>
+<li><p>For this class, you can earn half a percentage point (0.5%) added
+to your final grade by visiting the office hours of a member of the
+instructional team (Will, or any of the IAs) sometime before week 7.
+This can be to get a course content question answered or to discuss a
+homework, or, if meeting with Will, simply to introduce yourself and
+discuss some element of your linguistic interests or scholarly future.
+<strong>To claim this extra credit, you must submit the canvas “Extra
+Credit” quiz on Gradescope <em>within 24 hours of your
+visit</em></strong>.</p></li>
+<li><p>You can earn one percentage point of extra credit for your final
+grade by participating in one credit of Linguistics, Psychology or
+Cognitive Science experiment. Sign up here:<a
+href="http://ucsd.sona-systems.com/"
+class="uri">http://ucsd.sona-systems.com/</a>. Do not wait until the
+last week to participate, there may not be experiments available! The
+last week to fulfill this requirement is Week 9, so get on it! <a
+href="http://www.psychology.ucsd.edu/undergraduate-program/undergraduate-resources/sona/index.html">Detailed
+Instructions are here</a></p>
+<ul>
+<li>If you would prefer not to participated in a SONA experiment, you
+may write a one page (single spaced) summary of an experimental study
+from an academic journal related to this class and submit it directly to
+Will by email by Week 7. Your goal is to distill this paper into a more
+digestible form, with particular focus on the reason for the study, the
+findings of the study, and what we, as a field, have learned from it.
+Email this to your instructor along with a copy of the paper you
+chose.</li>
+</ul></li>
+</ul>
+<p>Before asking for ‘additional extra credit’ or other course
+exceptions, please see my page on <a
+href="https://savethevowels.org/gradechanges">student requests</a> to
+get a sense of what kinds of requests are welcome, and which are
+unlikely to be received well.</p>
+<h2 id="attendance-and-modality">Attendance and Modality</h2>
+<p>It is very important that you attend class and section, and thus,
+<strong>you will not be able to earn all the points in the class without
+attending class and section</strong>, because the work you do in section
+is important, and it’s better to do work with others and with a TA to
+help. ‘Hybrid’ options sound great in theory, but add a great deal of
+technical complexity, disadvantages those stuck at home, and in
+practice, ‘hybrid’ is the very best way to make the experience worse for
+two groups of people at once.</p>
+<p>That said, in recognition of the variety of issues we face in these
+Times, I am giving exceptional flexibility and amounts of ‘dropped’
+missed class.</p>
+<p>I am also willing to work with students for whom the attendance
+requirement is particularly difficult due <strong>documentable
+circumstances outside of your control</strong> (this means things like
+medical problems, family tragedies, housing issues, or other
+documentable serious ‘good cause’ issues, rather than overlapping
+courses or scheduling conflicts). Please reach out to Will ASAP if you’d
+like to request such accommodations.</p>
+<h3 id="remote-instruction-preparedness">Remote Instruction
+Preparedness</h3>
+<p>In the event of a mandatory pivot to remote learning whether
+generally, or in our course specifically, you will receive a formal
+notification codifying any changes which need to be made, and this
+syllabus will be updated. Changes made <strong>may</strong> include:</p>
+<ul>
+<li>Lectures moving to an online modality, which will also be posted as
+videos on YouTube, for those who need to watch asynchronously</li>
+<li>Webclickers will be used to capture responses remotely, too.</li>
+<li>Discussion sections will continue to meet as scheduled, but will do
+so remotely via Zoom, using breakout rooms to facilitate group work,
+with participation continuing to be mandatory.</li>
+<li>Homework submission and due dates will not change, as this process
+is already fully online.</li>
+<li>Any exam(s) scheduled during a remote period will be completed as
+online-submission ‘take home’ exam(s) conducted using Gradescope, during
+the designated times.</li>
+</ul>
+<p>Although I reserve the right to make additional changes as the
+circumstances merit, I do not anticipate that the overall course
+schedule, assignment/exam due dates, nor final grade calculation will
+change.</p>
+<h2 id="course-policies">Course Policies</h2>
+<h3 id="masking-illness-and-participation">Masking, Illness and
+participation</h3>
+<p>The use of a campus-policy-approved face mask covering your mouth and
+nose is <strong>optional</strong> in this class, per current university
+guidance. Although I will teach unmasked for speech perception and
+accessibility, students are very welcome to continue wearing a mask in
+the classroom, and their choice to do so should be respected. If you do,
+please make an effort to talk more loudly, given the difficulties of
+masked speech.</p>
+<p><strong>If you or somebody in your life feels sick, shows signs of
+illness, or is diagnosed with COVID or another communicable illness, DO
+NOT attend class, section, or in-person office hours until you have been
+tested and cleared</strong>. Policies above dictate that you can miss
+massive amounts of class without penalty or documentation, so when in
+doubt, stay home.</p>
+<p>I will not ‘respect you for powering through’, I will be disappointed
+that you’ve endangered the class, so please, don’t hesitate to use those
+days off (although you will still be responsible for understanding and
+reviewing the work on your own).</p>
+<h3 id="asking-questions-and-student-hours">Asking Questions and Student
+Hours</h3>
+<p>You are highly encouraged to join student hours (often known as
+‘office hours’) or help sessions to ask content questions, ask for
+clarifications about assignments, to ask for more information on a
+subject that interests you, or to get help on homeworks. Helping you
+learn this material is quite literally our job, so having students in
+office hours is no inconvenience.</p>
+<p><strong>Do not email us course content or homework
+questions!</strong> If you have a question about course material, post
+it on Canvas, such that everybody can benefit from the answers (because
+chances are, they’re struggling in the same places). Adminstrative
+questions (or questions you’d like to discuss in private) should still
+be sent to the instructor via email.</p>
+<h3 id="re-grading-policy">Re-grading policy</h3>
+<p>If you feel that a grade has been assigned in error you should
+<strong>submit a regrade request via Gradescope</strong> in an e-mail to
+the Instructor (wstyler@ucsd.edu) ccing your TAs.</p>
+<ul>
+<li><p>Check my <a href="https://wstyler.ucsd.edu/gradechanges">Grade
+Change Guidelines</a> before you submit your request, to make sure it’s
+a kind of grade change we can approve.</p></li>
+<li><p><strong>You must submit your request within seven days of that
+particular assignment being returned/released</strong>. All grades more
+than seven days old are final, erroneous or not, and all
+previously-released grades will become final on the morning of the final
+exam.</p></li>
+</ul>
+<p>This means that you’ll want to look over every assignment as soon as
+it’s given back, so that any possible errors can be addressed, and so
+that you’ll learn from any mistakes.</p>
+<h3 id="academic-integrity">Academic Integrity</h3>
+<p>Although you’re welcome to form study groups to discuss questions and
+help each other out with understanding the material, you should be the
+only person working on your copy of your assignment, and every answer
+should reflect your own learning and work. Please, don’t be a cheater,
+for your sake and ours, and refer to the UCSD policy below for more
+information. Remember, you can always retake a failed class, but you
+can’t make an academic integrity violation disappear.</p>
+<h3 id="respectful-discussion-policy">Respectful Discussion Policy</h3>
+<p>Examining language and languages inevitably leads to discussions of
+gender, race, sexual orientation, religion, politics, nationality, etc.
+Opinions are welcome, but all students must be mindful and respectful of
+others in the class. Speak with others using respectful and kind
+language, just as you’d like them to do with you, and focus your
+discussion on the ideas, rather than individuals. Finally, remember that
+as we discuss and evaluate our conversations, the focus will be on the
+impact on an individual or group, not the intention or motivation of the
+actor.</p>
+<h3 id="special-accommodations-policy">Special accommodations
+Policy</h3>
+<p>All requests for special accommodations must be brought to the
+instructor in the first two weeks of class, ideally sooner. This
+includes things like religious holidays, university-sponsored events,
+athletic schedules, conflicts with exam dates, and OSD accommodations.
+Because running a big course is quite complex, if I don’t find out about
+it in the first two weeks, I may not be able to help.</p>
+<h3 id="late-add-policy">Late Add Policy</h3>
+<p>Students adding the course after the course has begun will be held to
+the same standards as their classmates, and graded according to the same
+scale. In addition to being responsible for knowing material from past
+assignments and sessions, the following policies apply:</p>
+<ul>
+<li><p>Missed participation will be counted as zeroes, and dropped
+according to course policy.</p></li>
+<li><p>Any assignments <em>which have not been graded and released to
+the class</em> may be completed and submitted for full credit within one
+week of joining the class.</p></li>
+<li><p>Assignments which have already been graded and released cannot be
+made up, but remember that we drop the lowest of some of these types of
+score, and that ‘zero’ will qualify as such.</p></li>
+</ul>
+<p><em>If you’ve joined sufficiently late as to wind up with zeroes even
+after the dropped assignments, contact the instructor ASAP to formulate
+a plan to make up the work you’ve missed.</em></p>
+<h3 id="other-course-policies">Other Course Policies</h3>
+<ul>
+<li><p>Please keep your responses and examples in homework and exams
+kind, lighthearted, non-violent, and PG-13 unless specifically
+discussing more adult language (e.g. swearing or a new word for a more
+adult concept).</p>
+<ul>
+<li>This is not for ‘censorship’, but for compassion for the variety of
+people who might read or grade your responses. Feel free to talk about
+all of language, but there’s no need to be dark, ‘edgy’, or to introduce
+adult themes when you’re just giving an example sentence.</li>
+</ul></li>
+<li><p>We will gladly honor your request to be addressed using your
+preferred name or gender pronoun in cases where it differs from that on
+the course roster. Please let us know quickly, remind us often, and
+accept our apologies if we forget.</p></li>
+<li><p>If you’d ever like a letter of recommendation or reference from
+me, make sure to interact in class, come to office hours regularly, ask
+great questions, make an impression, and take more classes from me
+later. Even if you do <em>great</em> in the class, if I don’t know you
+well, I’ll be a bad choice to write for you, and I have a policy of not
+writing weak letters. More details at <a
+href="https://wstyler.ucsd.edu/recommendation/"
+class="uri">https://wstyler.ucsd.edu/recommendation/</a></p></li>
+<li><p>Will will unabashedly use as many really awful puns as possible
+given the course content. If you have a pun allergy, run. Flee. Escape.
+There is still time!</p>
+<ul>
+<li>What do you call an alligator in a vest? An investigator.</li>
+</ul></li>
+<li><p>Information contained in the course syllabus, other than the
+grading policies, may be subject to change, as deemed appropriate by the
+instructor.</p></li>
+</ul>
+<h2 id="acknowledgements">Acknowledgements</h2>
+<p>Thank you very much to Ivano Caponigro and Jelena Krivokapic, for the
+materials upon which some elements of this class were originally based.
+We also respectfully acknowledge that we live, learn, and work on the
+land of the <a
+href="https://native-land.ca/maps/territories/kumeyaay/">Kumeyaay/Kumiai</a>
+nation. <a href="https://native-land.ca/">Whose land are you on?</a></p>
+<h2 id="ucsd-academic-policies">UCSD Academic Policies</h2>
+<h3 id="accessibility">Accessibility</h3>
+<p>Students requesting accommodations for this course due to a
+disability must provide a current Authorization for Accommodation (AFA)
+letter issued by the Office for Students with Disabilities (OSD) which
+is located in University Center 202 behind Center Hall. Students are
+required to present their AFA letters to Faculty (please make
+arrangements to contact me privately) and to the OSD Liaison in the
+department in advance so that accommodations may be arranged.</p>
+<p>Contact <a href="https://disabilities.ucsd.edu/">the OSD</a> for
+further information - <a href="mailto:osd@ucsd.edu"
+class="email">osd@ucsd.edu</a> | 858.534.4382</p>
+<h3 id="academic-integrity-1">Academic Integrity</h3>
+<p>Each student in this course is expected to abide by the <a
+href="https://senate.ucsd.edu/Operating-Procedures/Senate-%20Manual/Appendices/2">UC
+San Diego Policy on Integrity of Scholarship</a> and to <a
+href="https://academicintegrity.ucsd.edu/excel-integrity/index.html">excel
+with integrity</a>. Any work submitted by a student in this course for
+academic credit will be the student’s own work.</p>
+<p>Academic dishonesty (actions like cheating, plagiarism, aid of
+academic dishonesty, fabrication, lying, blackmail, bribery, and
+threatening behavior) will generally result in poor recall and learning
+of the material, and aren’t acceptable at UCSD. In cases of academic
+dishonesty, possible in-class academic sanctions can include anything
+from a zero on the assignment/test/project in question, to a blanket
+lowering of your final grade by X%, to an assigned and non-negotiable
+grade of “F” in the course. These sanctions are assigned at the sole
+discretion of the instructor, and as every case is unique, additional
+sanctions not listed above may apply. But again, remember that doing the
+assignments honestly is a part of the learning process, and failure to
+do so will hurt you more than anybody else.</p>
+<h3 id="classroom-behavior-policy">Classroom Behavior Policy</h3>
+<p><a
+href="https://students.ucsd.edu/_files/student-conduct/uc-san-diego-student-conduct-code-10-9-18.pdf">UCSD
+Student Conduct Code</a></p>
+<p><a href="https://ucsd.edu/about/principles.html">UCSD Principles of
+Community</a></p>
+<h3 id="religious-accomodation">Religious Accomodation</h3>
+<p>It is the policy of the university to make reasonable efforts to
+accommodate students having bona fide religious conflicts with scheduled
+examinations by providing alternative times or methods to take such
+examinations. If a student anticipates that a scheduled examination will
+occur at a time at which his or her religious beliefs prohibit
+participation in the examination, the student must submit to the
+instructor a statement describing the nature of the religious conflict
+and specifying the days and times of conflict.</p>
+<p>For final examinations, the statement must be submitted no later than
+the end of the second week of instruction of the quarter. For all other
+examinations, the statement must be submitted to the instructor as soon
+as possible after a particular examination date is scheduled.</p>
+<p>If a conflict with the student’s religious beliefs does exist, the
+instructor will attempt to provide an alternative, equitable examination
+that does not create undue hardship for the instructor or for the other
+students in the class.</p>
+<h3 id="discrimination-and-harrassment">Discrimination and
+Harrassment</h3>
+<p>The University of California, in accordance with applicable federal
+and state laws and university policies, does not discriminate on the
+basis of race, color, national origin, religion, sex, gender, gender
+identity, gender expression, pregnancy (including pregnancy, childbirth,
+and medical conditions related to pregnancy or childbirth), physical or
+mental disability, medical condition, genetic information, ancestry,
+marital status, age, sexual orientation, citizenship, or service in the
+uniformed services (including membership, application for membership,
+performance of service, application for service, or obligation for
+service in the uniformed services). The university also prohibits
+harassment based on these protected categories, including sexual
+harassment, as well as sexual assault, domestic violence, dating
+violence, and stalking. The nondiscrimination policy covers admission,
+access, and treatment in university programs and activities.</p>
+<p>If students have questions about student-related nondiscrimination
+policies or concerns about possible discrimination or harassment, they
+should contact the Office for the Prevention of Harassment &amp;
+Discrimination (OPHD) at (858) 534- 8298, ophd@ucsd.edu, or <a
+href="reportbias.ucsd.edu">reportbias.ucsd.edu</a>.</p>
+<p>Campus policies provide for a prompt and effective response to
+student complaints. This response may include alternative resolution
+procedures or formal investigation. Students will be informed about
+complaint resolution options.</p>
+<p>A student who chooses not to report may still contact CARE at the
+Sexual Assault Resource Center for more information, emotional support,
+individual and group counseling, and/or assistance with obtaining a
+medical exam. For off-campus support services, a student may contact the
+Center for Community Solutions. Other confidential resources on campus
+include Counseling and Psychological Services, Office of the Ombuds, and
+Student Health Services.</p>
+<p><a href="http://care.ucsd.edu">CARE at the Sexual Assault Resource
+Center</a> - 858.534.5793 or <a href="mailto:sarc@ucsd.edu"
+class="email">sarc@ucsd.edu</a> <a
+href="http://caps.ucsd.edu">Counseling and Psychological Services
+(CAPS)</a> - 858.534.3755</p>
+</body>
+</html>

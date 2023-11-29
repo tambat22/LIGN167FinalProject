@@ -1,9 +1,13 @@
 import streamlit as st
 from openai import OpenAI 
+import os
+from dotenv import load_dotenv, find_dotenv
 
+#load .env file 
+load_dotenv(find_dotenv())
 
 # Set your OpenAI API key
-client = OpenAI(api_key = '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' )
+client = OpenAI(api_key = os.environ.get("OPENAI_API_KEY"))
 
 st.title("GPT-based Chatbot")
 
@@ -14,3 +18,5 @@ completion = client.chat.completions.create(
     {"role": "user", "content": "What is language?"}
   ]
 )
+
+print(completion.choices[0].message)
