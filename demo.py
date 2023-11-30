@@ -14,19 +14,18 @@ load_dotenv()
 client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
 assistant = client.beta.assistants.retrieve("asst_BnvVyG8g4UpskXZzUPl8jIvp")
 
-def api():
+def generate_api(questions, content, start_week, end_week):
     thread = client.beta.threads.create()
 
     message = client.beta.threads.messages.create(
         thread_id=thread.id,
         role="user",
-        content="What topics were covered in the lecture 2: what is language?"
+        content="Generate a " + questions + " question " + content + " that covers content from week " + start_week + "to " + "week " + end_week
     )
 
     run = client.beta.threads.runs.create(
     thread_id=thread.id,
-    assistant_id="asst_BnvVyG8g4UpskXZzUPl8jIvp",
-    instructions="Please address the user as User."
+    assistant_id="asst_BnvVyG8g4UpskXZzUPl8jIvp"
     )
 
     run_completed = False
@@ -44,15 +43,18 @@ def api():
             run_completed = True
         else:
             # Wait for a short period before checking again
-            time.sleep(1)  # Wait for 1 second
+            time.sleep(2)  # Wait for 1 second
         if (run_status.status == "failed"):
-            print("failed")
             break
 
     # Once the run is complete, retrieve and print messages
     messages = client.beta.threads.messages.list(
         thread_id=thread.id
     )
+
+    #print(messages.data[0].content[0].text.value)
+    st.write(messages.data[0].content[0].text.value)
+
 
 def main():
     # Custom CSS to style the Streamlit app
@@ -119,6 +121,7 @@ def display_quiz_details():
         start_week_quiz <= end_week_quiz and num_questions_quiz <= 100 and end_week_quiz <= 10 and start_week_quiz >= 0):
         if st.button("Confirm Quiz Details", key='confirm_quiz'):
             st.write(f"Quiz with {num_questions_quiz} questions covering weeks {start_week_quiz} to {end_week_quiz} is being generated...")
+            generate_api(str(num_questions_quiz), "Quiz", str(start_week_quiz), str(end_week_quiz))
 
 def display_test_details():
     st.title("Test Details")
@@ -130,6 +133,7 @@ def display_test_details():
         start_week_test <= end_week_test and num_questions_test <= 100 and end_week_test <= 10 and start_week_test >= 0):
         if st.button("Confirm Test Details", key='confirm_test'):
             st.write(f"Test with {num_questions_test} questions covering weeks {start_week_test} to {end_week_test} is being generated...")
+            generate_api(num_questions_test, "Test", start_week_test, end_week_test)
 
 
 if __name__ == "__main__":
