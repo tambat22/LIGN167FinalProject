@@ -6,6 +6,7 @@ from dotenv import load_dotenv, find_dotenv
 import time
 
 #run 'source .venv/bin/activate' on mac
+#$ streamlit run demo.py
 
 #load .env file 
 load_dotenv()
@@ -65,7 +66,7 @@ def main():
                 background-color: #ADD8E6;  /* Light Blue Background */
             }
             h1 {
-                color: black;
+                color: white;
                 text-align: center;
                 font-size: 40px; /* Larger Font Size */
             }
@@ -113,27 +114,27 @@ def main():
 
 def display_quiz_details():
     st.title("Quiz Details")
-    num_questions_quiz = st.number_input("Number of Questions for Quiz", min_value=1, max_value=100, value=None, key='num_questions_quiz')
-    start_week_quiz = st.number_input("Start Week for Quiz", min_value=1, max_value=10,value=None, key='start_week_quiz')
-    end_week_quiz = st.number_input("End Week for Quiz", min_value=start_week_quiz, max_value=10, value=None,key='end_week_quiz')
+    num_questions_quiz = st.number_input("Number of Questions for Quiz", min_value=1, max_value=100, key='num_questions_quiz')
+    start_week_quiz = st.number_input("Start Week for Quiz", min_value=1, max_value=10, key='start_week_quiz')
+    end_week_quiz = st.number_input("End Week for Quiz", min_value=start_week_quiz, max_value=10, key='end_week_quiz')
     
     if (num_questions_quiz and start_week_quiz and end_week_quiz and 
         start_week_quiz <= end_week_quiz and num_questions_quiz <= 100 and end_week_quiz <= 10 and start_week_quiz >= 0):
         if st.button("Confirm Quiz Details", key='confirm_quiz'):
-            st.write(f"Quiz with {num_questions_quiz} questions covering weeks {start_week_quiz} to {end_week_quiz} is being generated...")
+            st.write(f"Quiz with {num_questions_quiz} question(s) covering weeks {start_week_quiz} to {end_week_quiz} is being generated...")
             generate_api(str(num_questions_quiz), "Quiz", str(start_week_quiz), str(end_week_quiz))
 
 def display_test_details():
     st.title("Test Details")
-    num_questions_test = st.number_input("Number of Questions for Test", min_value=1, max_value=100, value=None, key='num_questions_test')
-    start_week_test = st.number_input("Start Week for Test", min_value=1, max_value=10, value=None, key='start_week_test')
-    end_week_test = st.number_input("End Week for Test", min_value=start_week_test, max_value=10, value=None, key='end_week_test')
+    num_questions_test = st.number_input("Number of Questions for Test", min_value=1, max_value=100, key='num_questions_test')
+    start_week_test = st.number_input("Start Week for Test", min_value=1, max_value=10, key='start_week_test')
+    end_week_test = st.number_input("End Week for Test", min_value=start_week_test, max_value=10, key='end_week_test')
     
     if (num_questions_test and start_week_test and end_week_test and 
         start_week_test <= end_week_test and num_questions_test <= 100 and end_week_test <= 10 and start_week_test >= 0):
         if st.button("Confirm Test Details", key='confirm_test'):
-            st.write(f"Test with {num_questions_test} questions covering weeks {start_week_test} to {end_week_test} is being generated...")
-            generate_api(num_questions_test, "Test", start_week_test, end_week_test)
+            st.write(f"Test with {num_questions_test} question(s) covering weeks {start_week_test} to {end_week_test} is being generated...")
+            generate_api(str(num_questions_test), "Test", str(start_week_test), str(end_week_test))
 
 
 if __name__ == "__main__":
