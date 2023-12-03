@@ -124,9 +124,9 @@ def main():
 
 def display_quiz_details():
     st.title("Quiz Details")
-    num_questions_quiz = st.number_input("Number of Questions for Quiz", min_value=1, max_value=100, key='num_questions_quiz')
-    start_week_quiz = st.number_input("Start Week for Quiz", min_value=1, max_value=10, key='start_week_quiz')
-    end_week_quiz = st.number_input("End Week for Quiz", min_value=start_week_quiz, max_value=10, key='end_week_quiz')
+    num_questions_quiz = st.number_input("Number of Questions for Quiz", min_value=1, max_value=100, value=None, key='num_questions_quiz')
+    start_week_quiz = st.number_input("Start Week for Quiz", min_value=1, max_value=10, value=None, key='start_week_quiz')
+    end_week_quiz = st.number_input("End Week for Quiz", min_value=start_week_quiz, max_value=10, value=None, key='end_week_quiz')
     
     generate_content_message = st.empty()
 
@@ -141,9 +141,9 @@ def display_quiz_details():
 
 def display_test_details():
     st.title("Test Details")
-    num_questions_test = st.number_input("Number of Questions for Test", min_value=1, max_value=100, key='num_questions_test')
-    start_week_test = st.number_input("Start Week for Test", min_value=1, max_value=10, key='start_week_test')
-    end_week_test = st.number_input("End Week for Test", min_value=start_week_test, max_value=10, key='end_week_test')
+    num_questions_test = st.number_input("Number of Questions for Test", min_value=1, max_value=100,value=None, key='num_questions_test')
+    start_week_test = st.number_input("Start Week for Test", min_value=1, max_value=10, value=None, key='start_week_test')
+    end_week_test = st.number_input("End Week for Test", min_value=start_week_test, max_value=10, value=None, key='end_week_test')
     
     generate_content_message = st.empty()
 
