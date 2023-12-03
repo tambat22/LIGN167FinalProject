@@ -11,27 +11,46 @@ combined_content = ""
 
 # Week counter
 week_counter = 0
+
 # Check if there are any files at all
 if not markdown_files:
     print("No markdown files found in the directory.")
 else:
-    # Loop through all the files
-    for file_name in markdown_files:
-        # Adding a week header for each file
+    # Process the first file for Week 0
+    first_file_path = os.path.join(folder_path, markdown_files[0])
+    combined_content += f"## Week {week_counter}\n\n"
+    with open(first_file_path, 'r') as f:
+        combined_content += f.read() + "\n\n"
+    week_counter += 1
+
+    # Loop through the rest of the files
+    i = 1
+    while i < len(markdown_files):
+        # Adding a week header
         combined_content += f"## Week {week_counter}\n\n"
 
-        # Reading and adding the content of the file
-        file_path = os.path.join(folder_path, file_name)
-        with open(file_path, 'r') as f:
-            combined_content += f.read() + "\n\n"
+        # Special handling for Week 8 and Week 9 (one file each)
+        if week_counter in [8]:
+            file_path = os.path.join(folder_path, markdown_files[i])
+            with open(file_path, 'r') as f:
+                combined_content += f.read() + "\n\n"
+            i += 1  # Increment file index by 1
 
-        # Special handling for Week 8 (increment week counter after one file)
-        if week_counter == 8:
-            week_counter += 1
+        # Regular handling for other weeks (two files each)
         else:
-            # Regular handling for other weeks (increment week counter after two files)
-            if file_name != markdown_files[0] and (markdown_files.index(file_name) % 2 != 0):
-                week_counter += 1
+            for j in range(2):
+                if i + j < len(markdown_files):
+                    file_path = os.path.join(folder_path, markdown_files[i + j])
+                    with open(file_path, 'r') as f:
+                        combined_content += f.read() + "\n\n"
+            i += 2  # Increment file index by 2
+
+        # Increment the week counter
+        week_counter += 1
+
+        # Ensure that the week counter does not exceed 10
+        if week_counter > 11:
+            break
 
     # Path for the output file
     output_file_path = 'Lectures.md'
@@ -40,4 +59,4 @@ else:
     with open(output_file_path, 'w') as f:
         f.write(combined_content)
 
-    print("Markdown files combined successfully with individual week headers for each lecture.")
+    print("Markdown files combined successfully with week headers.")
