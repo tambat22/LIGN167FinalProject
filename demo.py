@@ -4,6 +4,11 @@ import openai
 import os
 from dotenv import load_dotenv
 import time
+from tenacity import (
+    retry,
+    stop_after_attempt,
+    wait_random_exponential,
+)
 
 #run 'source .venv/bin/activate' on mac
 #$ streamlit run demo.py
@@ -17,22 +22,29 @@ assistant = client.beta.assistants.retrieve("asst_BnvVyG8g4UpskXZzUPl8jIvp")
 
 def generate_api(questions, content, start_week, end_week):
     thread = client.beta.threads.create()
+    print("Thread Created")
+    time.sleep(10)
 
     message = client.beta.threads.messages.create(
         thread_id=thread.id,
         role="user",
-        content="Generate a multiple choice " + content + " with only " + questions + " questions using the Lectures.md file from week " + start_week + " to " + " week " + end_week + ". Format it as a test handout with questions and option choices in a new line, and answers at the bottom labeled Answers."
+        content="Generate a multiple choice " + content + " with only " + questions + " questions using the included files from week " + start_week + " to " + " week " + end_week + ". Format it as a test handout with questions and option choices in a new line, and answers at the bottom labeled Answers."
     )
+    print("Message Created")
 
+    time.sleep(10)
     run = client.beta.threads.runs.create(
         thread_id=thread.id,
         assistant_id="asst_BnvVyG8g4UpskXZzUPl8jIvp"
     )
+    print("First run created")
 
+    time.sleep(60)
     run_status = client.beta.threads.runs.retrieve(
         thread_id=thread.id,
         run_id=run.id
     )
+    print("Attempting to retrieve run")
 
     while run_status.status!= "completed":
         # Retrieve the run status
@@ -40,11 +52,11 @@ def generate_api(questions, content, start_week, end_week):
             thread_id=thread.id,
             run_id=run.id
         )
-        print(run_status.status)
 
-        time.sleep(2)  # Wait for 1 second
+        time.sleep(20)
+        print(run_status)
         
-        if (run_status.status == "failed"):
+        if (run_status.status=="failed"):
             print("failed")
             break
 
@@ -54,6 +66,7 @@ def generate_api(questions, content, start_week, end_week):
     )
 
     #print(messages.data[0].content[0].text.value)
+    content = messages.data[0].content[0].text.value
     # Split the text into questions and answers
     parts = content.split("Answers:")
 
