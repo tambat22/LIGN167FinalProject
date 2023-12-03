@@ -919,7 +919,7 @@ That's why we care.
 
 <huge>Thank you!</huge>
 
-## Week 1
+## Week 0
 
 $ LIGN 101 - What is Language?
 
@@ -1934,6 +1934,8 @@ So, no.
 
 
 
+## Week 1
+
 $ LIGN 101 - What is a Language?
               
 ### Please Complete the Introductory Discussion
@@ -2775,7 +2777,7 @@ E) "Michael Bay luvs 2 desecrate good cartoonz. "
 -->
 
 
-## Week 2
+## Week 1
 
 $ LIGN 101 - Phonetics I
 
@@ -3733,6 +3735,8 @@ B) No, they're the same vowel
 
 
 
+
+## Week 2
 
 $ LIGN 101 - Phonetics II
 
@@ -4913,7 +4917,7 @@ And yet, nobody gives a damn.
 
 
 
-## Week 3
+## Week 2
 
 $ LIGN 101 - Phonology I
 
@@ -6158,6 +6162,8 @@ You describe the distribution of the allophones of a phoneme with phonological r
 
 <huge>Thank you!</huge>
 
+## Week 3
+
 $ LIGN 101 - Phonology II
 
 <img class="r-stretch" src="ling_memes/zero_goes_to_cat.jpg">
@@ -6949,7 +6955,7 @@ A set of speech sounds in a given language that is able to be uniquely, complete
 
 
 
-## Week 4
+## Week 3
 
 $ LIGN 101 - Phonology III
 
@@ -7590,6 +7596,8 @@ Phonology, phoneme, allophone, complimentary Distribution, Contrastive Distribut
 
 
 
+
+## Week 4
 
 $ LIGN 101 - Morphology
 
@@ -8476,7 +8484,7 @@ E) Adverb
 
 
 
-## Week 5
+## Week 4
 
 $ LIGN 101 - Morphology 2 and English is drunk
 
@@ -9525,6 +9533,8 @@ Sometimes, we don't know if we want the verb particle construction, or the prepo
 
 
 
+## Week 5
+
 $ LIGN 101 - Syntax I
 
 ### You can visit anybody's office hours!
@@ -10204,7 +10214,7 @@ A representation of the hierarchical structure of sentences, capturing constitue
 
 <huge>Thank you!</huge>
 
-## Week 6
+## Week 5
 
 $ LIGN 101 - Syntax II
 
@@ -10958,6 +10968,8 @@ Let's break it down!
 
 
 
+## Week 6
+
 $ LIGN 101 - Syntax III
 
 <img class="big" src="phonology/meme_flapping.jpg">
@@ -11667,7 +11679,7 @@ Verbs that take a Subject and two objects
 
 
 
-## Week 7
+## Week 6
 
 $ LIGN 101 - Semantics I
 
@@ -12699,6 +12711,8 @@ An example of a given word or meaning which is "central" to the category, a "bet
 
 
 
+## Week 7
+
 $ LIGN 101 - Semantics and Pragmatics
 
 <img class="r-stretch" src="ling_memes/barato_barato.jpg">
@@ -13516,7 +13530,7 @@ Jessica: What'd you get at the store?
 
 
 
-## Week 8
+## Week 7
 
 $ LIGN 101 - Pragmatics
 
@@ -14487,7 +14501,7 @@ I will show you fear in a handful of dust.
 
 <huge>Thank you!</huge>
 
-## Week 9
+## Week 8
 
 $ Natural Language Processing and Computational Linguistics
 
@@ -15451,6 +15465,8 @@ I asked [GPT-J](https://huggingface.co/EleutherAI/gpt-j-6B) to finish the articl
 ---
 
 <huge>Thank you!</huge>
+
+## Week 9
 
 $ Natural Language Processing and Computational Linguistics
 
@@ -17394,6 +17410,8 @@ The postulated human mother-tongue
 
 
 
+
+## Week 10
 
 $ LIGN 101 - Outro
 
