@@ -1,14 +1,9 @@
 import streamlit as st
 from openai import OpenAI
-import openai
 import os
 from dotenv import load_dotenv
 import time
-from tenacity import (
-    retry,
-    stop_after_attempt,
-    wait_random_exponential,
-)
+import json
 
 #run 'source .venv/bin/activate' on mac
 #$ streamlit run demo.py
@@ -20,7 +15,7 @@ load_dotenv()
 client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'),organization=os.getenv('OPENAI_ORG_ID'))
 assistant = client.beta.assistants.retrieve("asst_C3Iyis7iFQ0HP7PFseOl1zZz")
 
-def generate_api(question_type,questions, content, start_week, end_week):
+def generate_api(question_type,questions, content, start_week, end_week, topic):
     thread = client.beta.threads.create()
     print("Thread Created")
     time.sleep(10)
@@ -28,18 +23,18 @@ def generate_api(question_type,questions, content, start_week, end_week):
     message = client.beta.threads.messages.create(
         thread_id=thread.id,
         role="user",
-        content= ("Create a " + question_type + content + " that only HAS EXACTLY " + questions + 
-                  " questions that is about the material from week " + start_week + " to " + 
+        content= ("Create a " + questions + " question " + question_type + content + " that only HAS EXACTLY " + questions + 
+                  " questions that is about the " + topic + " from week " + start_week + " to " + 
                   " week " + end_week + ". A quiz should be easier than a test. Format it as a " + content + 
                   " handout with questions and option choices in a new line, and then write 'Answers' and give me answer key for the questions"+ 
-                  " Then write 'JSON code' and give me the questions in JSON format: [{questions,options,answers,topic}]")
+                  " Then you MUST write 'JSON code' followed by JSON code for the quiz in a a JSON format following: [{questions,options,answers}]")
     )
     print("Message Created")
 
     time.sleep(10)
     run = client.beta.threads.runs.create(
         thread_id=thread.id,
-        assistant_id="asst_3IDeBnkAJr9v7fnahP1fet49"
+        assistant_id="asst_C3Iyis7iFQ0HP7PFseOl1zZz"
     )
     print("First run created")
 
@@ -58,7 +53,7 @@ def generate_api(question_type,questions, content, start_week, end_week):
         )
 
         time.sleep(10)
-        print(run_status)
+        print(run_status.status)
         
         if (run_status.status=="failed"):
             print("failed")
@@ -69,16 +64,14 @@ def generate_api(question_type,questions, content, start_week, end_week):
         thread_id=thread.id
     )
 
-    #print(messages.data[0].content[0].text.value)
     content = messages.data[0].content[0].text.value
     # Split the text into questions and answers
     parts = content.split("Answers:")
+    parts2 = content.split("```json")
 
     questions_text = parts[0]
     answers_text = parts[1] if len(parts) > 1 else ""
-    parts2 = answers_text.split("JSON code")
-    answers_text = parts2[0]
-    json_text = answers_text[1] if len(answers_text) > 1 else ""
+    json_text = parts2[1]
 
     #print(questions_text)
     #print(answers_text)
@@ -86,6 +79,7 @@ def generate_api(question_type,questions, content, start_week, end_week):
 
     st.write(questions_text)
     content = [questions_text,answers_text,json_text]
+    print("Run retrieved successfully")
     return content
 
 
@@ -132,16 +126,12 @@ def main():
     if 'option' not in st.session_state:
         st.session_state.option = None
 
-    if st.sidebar.button("Generate Quiz"):
+    if st.sidebar.button("Generate Quiz/Test"):
         st.session_state.option = 'quiz'
-    if st.sidebar.button("Generate Test"):
-        st.session_state.option = 'test'
 
     # Main page content based on sidebar selection
     if st.session_state.option == 'quiz':
         display_quiz_details()
-    elif st.session_state.option == 'test':
-        display_test_details()
 
 def display_quiz_details():
     #keep track if confirm quiz button is clicked
@@ -153,8 +143,11 @@ def display_quiz_details():
     if 'key_txt' not in st.session_state:
         st.session_state.key_txt= False
 
-    st.title("Quiz Details")
-    st.write ("Select the type of questions for your quiz below.")
+    st.title("Additional Details")
+    st.write("Would you like to generate a quiz or test?")
+    quiz = st.checkbox("Quiz", key= "quizz")
+    test = st.checkbox("Test", key="test")
+    st.write ("Select the type of questions you would like:")
     st.write("Note that if no option is selected, the question type will be defaulted to multiple choice ")
     multiple_choice = st.checkbox("Multiple Choice", key= "mc")
     short_answer = st.checkbox("Short Answer", key="short_answer")
@@ -163,6 +156,38 @@ def display_quiz_details():
     start_week_quiz = st.number_input("Start Week for Quiz", min_value=1, max_value=10, value=None, key='start_week_quiz')
     end_week_quiz = st.number_input("End Week for Quiz", min_value=start_week_quiz, max_value=10, value=None, key='end_week_quiz')
     
+    st.write ("Are there any specific topic(s) you want a heavier emphasis on?")
+    # Dictionary to store the status of checkboxes
+    checkbox_status = {
+        "Syntax": False,
+        "Phonetics": False,
+        "Morphology": False,
+        "Phonology": False,
+        "Semantics and Pragmatics": False,
+        "Language Families": False,
+        "Theoretical Syntax": False,
+        "Speech Production and Perception": False,
+        "Linguistic Theory": False,
+        "Practical Applications in Linguistics": False
+    }
+
+    # Function to update the list based on checkbox status
+    def update_selected_topics():
+        selected_topics = [topic for topic, checked in checkbox_status.items() if checked]
+        return selected_topics
+
+    # Splitting the layout into two columns
+    col1, col2 = st.columns(2)
+
+    # Creating checkboxes in each column
+    topics = list(checkbox_status.keys())
+    for i, topic in enumerate(topics):
+        current_col = col1 if i < len(topics) / 2 else col2
+        checkbox_status[topic] = current_col.checkbox(topic, value=checkbox_status[topic])
+
+    # Updating and displaying the list of selected topics
+    selected_topics = update_selected_topics()
+
     generate_content_message = st.empty()
 
     #default question type
@@ -172,68 +197,55 @@ def display_quiz_details():
         question_type = "multiple choice and short answer"
     elif (short_answer):
         question_type = "short answer"
- 
+    
+    topic = "general course material"
+
+    if (selected_topics!=0):
+        topic = topic + " but with an emphasis on the following topic(s): "
+        for topic_clicked in selected_topics:
+            topic = topic + ", " + topic_clicked
+
     if (num_questions_quiz and start_week_quiz and end_week_quiz and 
         start_week_quiz <= end_week_quiz and num_questions_quiz <= 5 and end_week_quiz <= 10 and start_week_quiz > 0):
         
         if st.button("Confirm Quiz Details", key = "quiz"):
             st.session_state.confirm_quiz = True
-        
-        if (st.session_state.get("confirm_quiz",False)):
             generate_content_message.write(f"Quiz with {num_questions_quiz} question(s) covering weeks {start_week_quiz} to {end_week_quiz} is being generated...")
         
-            content = generate_api(question_type, str(num_questions_quiz), "Quiz", str(start_week_quiz), str(end_week_quiz))
+            #st.session_state.content = generate_api(question_type, str(num_questions_quiz), "Quiz", str(start_week_quiz), str(end_week_quiz), topic)
+            st.session_state.content  = ["A","B","[{\"question\": \"Which of the following best describes the aspects used to describe consonants in phonetics?\", \"options\": {\"A\": \"Place, Manner\", \"B\": \"Voice, Manner\", \"C\": \"Place, Voice\", \"D\": \"Place, Manner, Voice\"}, \"answer\": \"D\"}]```"] 
             generate_content_message.empty()
 
-            generate_txt_file("quiz",content[0])
-            generate_txt_file("answers","**Answers" + content[1])
-            
-            #reset app
-            if st.button("Start Over"):
-                st.session_state.confirm_quiz = False
-                # Add any other state resets here
-                st.rerun()  # This will rerun the script from top to reset the app
+        if st.session_state.get("confirm_quiz", False):
+            # Check if content is already generated and stored in session_state
+            if "content" in st.session_state:
+                question_text, answers_text, json_text = st.session_state.content
+
+                # Generate text files based on the stored content
+                generate_txt_file("quiz", question_text)
+                generate_txt_file("answers", "**Answers" + answers_text)
+
+                # Removing the leading and trailing triple quotes
+                json_string = json_text.strip("```")
+
+                # Now you can parse the JSON string
+                try:
+                    quiz_data = json.loads(json_string)
+                    print("Data loads successfully")
+                    # Further processing...
+                except json.JSONDecodeError as e:
+                    print(f"Error decoding JSON: {e}")
+                    quiz_data = json.loads(json_text)
+
+                # Button to start the quiz
+                if st.button("Take Quiz"):
+                    st.session_state.quiz_started = True
+
+                # Display the quiz if the button was clicked
+                if st.session_state.get("quiz_started", False):
+                    take_quiz(quiz_data)
 
 
-def display_test_details():
-    #keep track if confirm quiz button is clicked
-    if 'confirm_test' not in st.session_state:
-        st.session_state.confirm_test= False
-    
-    st.title("Test Details")
-    
-    st.write ("Select the type of questions for your test below.")
-    st.write("Note that if no option is selected, the question type will be defaulted to multiple choice ")
-    multiple_choice = st.checkbox("Multiple Choice", key= "mc")
-    short_answer = st.checkbox("Short Answer", key="short_answer")
-
-    num_questions_test = st.number_input("Number of Questions for Test", min_value=1, max_value=10,value=None, key='num_questions_test')
-    start_week_test = st.number_input("Start Week for Test", min_value=1, max_value=10, value=None, key='start_week_test')
-    end_week_test = st.number_input("End Week for Test", min_value=start_week_test, max_value=10, value=None, key='end_week_test')
-    
-    generate_content_message = st.empty()
-    #default question type
-    question_type = "multiple choice"
-
-    if (multiple_choice and short_answer):
-        question_type = "multiple choice and short answer"
-    elif (short_answer):
-        question_type = "short answer"
- 
-    #initalize placeholder for content
-    content =  ["hi","test"]
-
-    if (num_questions_test and start_week_test and end_week_test and 
-        start_week_test <= end_week_test and num_questions_test <= 10 and end_week_test <= 10 and start_week_test > 0):
-        if st.button("Confirm Test Details", key='test'):
-            generate_content_message.write(f"Test with {num_questions_test} question(s) covering weeks {start_week_test} to {end_week_test} is being generated...")
-            #content = generate_api(question_type,str(num_questions_test), "Test", str(start_week_test), str(end_week_test))
-            generate_content_message.empty()
-            st.session_state.confirm_test = True
-
-    if (st.session_state.confirm_test):    
-        generate_txt_file("test",content[0])
-        generate_txt_file("answers","Answers" + content[1])
         #reset app
         if st.button("Start Over"):
             st.session_state.confirm_quiz = False
@@ -247,6 +259,35 @@ def generate_txt_file(type,text):
         file_name=type+".txt",
         mime="text/plain",
         key = "download_"+type)
+# Function to run the quiz
+def take_quiz(questions):
+    if 'current_question' not in st.session_state:
+        st.session_state.current_question = 0
+        st.session_state.correct_answers = 0
+
+    question = questions[st.session_state.current_question]
+    st.write(f"Question {st.session_state.current_question + 1}: {question['question']}")
+
+    # Format the options for display
+    options = question["options"]
+    formatted_options = [f"{key}: {value}" for key, value in options.items()]
+    user_answer_key = st.radio("Choose an answer:", formatted_options, key=f"question_{st.session_state.current_question}")
+
+    # Check if it's the last question
+    is_last_question = st.session_state.current_question == len(questions) - 1
+    button_label = "Submit Quiz" if is_last_question else "Next Question"
+
+    if st.button(button_label):
+        # Extract the key from the selected answer
+        selected_key = user_answer_key.split(":")[0]
+        if selected_key == question["answer"]:
+            st.session_state.correct_answers += 1
+        if not is_last_question:
+            st.session_state.current_question += 1
+            st.experimental_rerun()
+        else:
+            st.write(f"Quiz Completed! You got {st.session_state.correct_answers} out of {len(questions)} questions right.")
+            st.write(f"Number of incorrect answers: {len(questions) - st.session_state.correct_answers}")
 
 if __name__ == "__main__":
     main()
