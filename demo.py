@@ -18,7 +18,7 @@ load_dotenv()
 
 # Set your OpenAI API key
 client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'),organization=os.getenv('OPENAI_ORG_ID'))
-assistant = client.beta.assistants.retrieve("asst_3IDeBnkAJr9v7fnahP1fet49")
+assistant = client.beta.assistants.retrieve("asst_C3Iyis7iFQ0HP7PFseOl1zZz")
 
 def generate_api(questions, content, start_week, end_week):
     thread = client.beta.threads.create()
@@ -35,7 +35,7 @@ def generate_api(questions, content, start_week, end_week):
     time.sleep(10)
     run = client.beta.threads.runs.create(
         thread_id=thread.id,
-        assistant_id="asst_3IDeBnkAJr9v7fnahP1fet49"
+        assistant_id="asst_C3Iyis7iFQ0HP7PFseOl1zZz"
     )
     print("First run created")
 
