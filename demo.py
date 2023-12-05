@@ -117,10 +117,9 @@ def main():
 
     st.sidebar.title("Welcome to LIGN 101: Introduction to Linguistics")
     st.sidebar.write("Please select an option below.")
-    st.sidebar.write("Due to API usage limitations, the maximum number of questions will be limited")
-    st.sidebar.write("Note that quiz will have max of 5 questions and test will have a maximum of 10 questions.")
+    st.sidebar.write("Due to API usage limitations, the maximum number of questions will be limited to 25 questions")
     st.sidebar.write("You will also be allowed to choose the range of week(s) from 1 - 10 to cover for each quiz/test.")
-    st.sidebar.write("Press enter after each selection.")
+    st.sidebar.write("Press enter after each selection and wait for running to finish loading.")
 
     # Using session state to track which option was selected
     if 'option' not in st.session_state:
@@ -152,7 +151,7 @@ def display_quiz_details():
     multiple_choice = st.checkbox("Multiple Choice", key= "mc")
     short_answer = st.checkbox("Short Answer", key="short_answer")
 
-    num_questions_quiz = st.number_input("Number of Questions for Quiz", min_value=1, max_value=5, value=None, key='num_questions_quiz')
+    num_questions_quiz = st.number_input("Number of Questions for Quiz", min_value=1, max_value=25, value=None, key='num_questions_quiz')
     start_week_quiz = st.number_input("Start Week for Quiz", min_value=1, max_value=10, value=None, key='start_week_quiz')
     end_week_quiz = st.number_input("End Week for Quiz", min_value=start_week_quiz, max_value=10, value=None, key='end_week_quiz')
     
@@ -206,7 +205,7 @@ def display_quiz_details():
             topic = topic + ", " + topic_clicked
 
     if (num_questions_quiz and start_week_quiz and end_week_quiz and 
-        start_week_quiz <= end_week_quiz and num_questions_quiz <= 5 and end_week_quiz <= 10 and start_week_quiz > 0):
+        start_week_quiz <= end_week_quiz and num_questions_quiz <= 25 and end_week_quiz <= 10 and start_week_quiz > 0):
         
         if st.button("Confirm Quiz Details", key = "quiz"):
             st.session_state.confirm_quiz = True
