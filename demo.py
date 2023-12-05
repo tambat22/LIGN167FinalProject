@@ -20,7 +20,7 @@ load_dotenv()
 client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'),organization=os.getenv('OPENAI_ORG_ID'))
 assistant = client.beta.assistants.retrieve("asst_C3Iyis7iFQ0HP7PFseOl1zZz")
 
-def generate_api(questions, content, start_week, end_week):
+def generate_api(question_type,questions, content, start_week, end_week):
     thread = client.beta.threads.create()
     print("Thread Created")
     time.sleep(10)
@@ -28,18 +28,22 @@ def generate_api(questions, content, start_week, end_week):
     message = client.beta.threads.messages.create(
         thread_id=thread.id,
         role="user",
-        content="Generate a multiple choice " + content + " with only " + questions + " questions using the included files from week " + start_week + " to " + " week " + end_week + ". Format it as a test handout with questions and option choices in a new line, and answers at the bottom labeled Answers."
+        content= ("Create a " + question_type + content + " that only HAS EXACTLY " + questions + 
+                  " questions that is about the material from week " + start_week + " to " + 
+                  " week " + end_week + ". A quiz should be easier than a test. Format it as a " + content + 
+                  " handout with questions and option choices in a new line, and then write 'Answers' and give me answer key for the questions"+ 
+                  " Then write 'JSON code' and give me the questions in JSON format: [{questions,options,answers,topic}]")
     )
     print("Message Created")
 
     time.sleep(10)
     run = client.beta.threads.runs.create(
         thread_id=thread.id,
-        assistant_id="asst_C3Iyis7iFQ0HP7PFseOl1zZz"
+        assistant_id="asst_3IDeBnkAJr9v7fnahP1fet49"
     )
     print("First run created")
 
-    time.sleep(60)
+    time.sleep(10)
     run_status = client.beta.threads.runs.retrieve(
         thread_id=thread.id,
         run_id=run.id
@@ -53,7 +57,7 @@ def generate_api(questions, content, start_week, end_week):
             run_id=run.id
         )
 
-        time.sleep(20)
+        time.sleep(10)
         print(run_status)
         
         if (run_status.status=="failed"):
@@ -72,12 +76,17 @@ def generate_api(questions, content, start_week, end_week):
 
     questions_text = parts[0]
     answers_text = parts[1] if len(parts) > 1 else ""
+    parts2 = answers_text.split("JSON code")
+    answers_text = parts2[0]
+    json_text = answers_text[1] if len(answers_text) > 1 else ""
 
-    print(questions_text)
-    print(answers_text)
+    #print(questions_text)
+    #print(answers_text)
+    #print(json_text)
 
     st.write(questions_text)
-    return (questions_text,answers_text)
+    content = [questions_text,answers_text,json_text]
+    return content
 
 
 def main():
@@ -89,7 +98,7 @@ def main():
                 background-color: #ADD8E6;  /* Light Blue Background */
             }
             h1 {
-                color: white;
+                color: black;
                 text-align: center;
                 font-size: 40px; /* Larger Font Size */
             }
@@ -105,9 +114,7 @@ def main():
                 justify-content: center;  /* Center content in the column */
                 text-align:center;
             }
-            .st-bf {
-                width: 100%;  /* Expander to full width */
-            }
+
             .st-bf:focus {
                 background-color: #B0C4DE; /* Light steel blue on focus */
             }
@@ -116,8 +123,9 @@ def main():
 
     st.sidebar.title("Welcome to LIGN 101: Introduction to Linguistics")
     st.sidebar.write("Please select an option below.")
-    st.sidebar.write("Note that quiz and test will have a maximum of 100 questions.")
-    st.sidebar.write("You will also be allowed to choose the range of week(s) from 0 - 10 to cover for each quiz/test.")
+    st.sidebar.write("Due to API usage limitations, the maximum number of questions will be limited")
+    st.sidebar.write("Note that quiz will have max of 5 questions and test will have a maximum of 10 questions.")
+    st.sidebar.write("You will also be allowed to choose the range of week(s) from 1 - 10 to cover for each quiz/test.")
     st.sidebar.write("Press enter after each selection.")
 
     # Using session state to track which option was selected
@@ -136,45 +144,109 @@ def main():
         display_test_details()
 
 def display_quiz_details():
+    #keep track if confirm quiz button is clicked
+    if 'confirm_quiz' not in st.session_state:
+        st.session_state.confirm_quiz = False
+    #tracking download buttons
+    if 'quiz_txt' not in st.session_state:
+        st.session_state.quiz_txt = False
+    if 'key_txt' not in st.session_state:
+        st.session_state.key_txt= False
+
     st.title("Quiz Details")
-    num_questions_quiz = st.number_input("Number of Questions for Quiz", min_value=1, max_value=100, value=None, key='num_questions_quiz')
+    st.write ("Select the type of questions for your quiz below.")
+    st.write("Note that if no option is selected, the question type will be defaulted to multiple choice ")
+    multiple_choice = st.checkbox("Multiple Choice", key= "mc")
+    short_answer = st.checkbox("Short Answer", key="short_answer")
+
+    num_questions_quiz = st.number_input("Number of Questions for Quiz", min_value=1, max_value=5, value=None, key='num_questions_quiz')
     start_week_quiz = st.number_input("Start Week for Quiz", min_value=1, max_value=10, value=None, key='start_week_quiz')
     end_week_quiz = st.number_input("End Week for Quiz", min_value=start_week_quiz, max_value=10, value=None, key='end_week_quiz')
     
     generate_content_message = st.empty()
 
+    #default question type
+    question_type = "multiple choice"
+
+    if (multiple_choice and short_answer):
+        question_type = "multiple choice and short answer"
+    elif (short_answer):
+        question_type = "short answer"
+ 
     if (num_questions_quiz and start_week_quiz and end_week_quiz and 
-        start_week_quiz <= end_week_quiz and num_questions_quiz <= 100 and end_week_quiz <= 10 and start_week_quiz >= 0):
-        if st.button("Confirm Quiz Details", key='confirm_quiz'):
+        start_week_quiz <= end_week_quiz and num_questions_quiz <= 5 and end_week_quiz <= 10 and start_week_quiz > 0):
+        
+        if st.button("Confirm Quiz Details", key = "quiz"):
+            st.session_state.confirm_quiz = True
+        
+        if (st.session_state.get("confirm_quiz",False)):
             generate_content_message.write(f"Quiz with {num_questions_quiz} question(s) covering weeks {start_week_quiz} to {end_week_quiz} is being generated...")
-            content = generate_api(str(num_questions_quiz), "Quiz", str(start_week_quiz), str(end_week_quiz))
+        
+            content = generate_api(question_type, str(num_questions_quiz), "Quiz", str(start_week_quiz), str(end_week_quiz))
             generate_content_message.empty()
+
             generate_txt_file("quiz",content[0])
-            generate_txt_file("answers","Answers: " + content[1])
+            generate_txt_file("answers","**Answers" + content[1])
+            
+            #reset app
+            if st.button("Start Over"):
+                st.session_state.confirm_quiz = False
+                # Add any other state resets here
+                st.rerun()  # This will rerun the script from top to reset the app
+
 
 def display_test_details():
+    #keep track if confirm quiz button is clicked
+    if 'confirm_test' not in st.session_state:
+        st.session_state.confirm_test= False
+    
     st.title("Test Details")
-    num_questions_test = st.number_input("Number of Questions for Test", min_value=1, max_value=100,value=None, key='num_questions_test')
+    
+    st.write ("Select the type of questions for your test below.")
+    st.write("Note that if no option is selected, the question type will be defaulted to multiple choice ")
+    multiple_choice = st.checkbox("Multiple Choice", key= "mc")
+    short_answer = st.checkbox("Short Answer", key="short_answer")
+
+    num_questions_test = st.number_input("Number of Questions for Test", min_value=1, max_value=10,value=None, key='num_questions_test')
     start_week_test = st.number_input("Start Week for Test", min_value=1, max_value=10, value=None, key='start_week_test')
     end_week_test = st.number_input("End Week for Test", min_value=start_week_test, max_value=10, value=None, key='end_week_test')
     
     generate_content_message = st.empty()
+    #default question type
+    question_type = "multiple choice"
+
+    if (multiple_choice and short_answer):
+        question_type = "multiple choice and short answer"
+    elif (short_answer):
+        question_type = "short answer"
+ 
+    #initalize placeholder for content
+    content =  ["hi","test"]
 
     if (num_questions_test and start_week_test and end_week_test and 
-        start_week_test <= end_week_test and num_questions_test <= 100 and end_week_test <= 10 and start_week_test >= 0):
-        if st.button("Confirm Test Details", key='confirm_test'):
+        start_week_test <= end_week_test and num_questions_test <= 10 and end_week_test <= 10 and start_week_test > 0):
+        if st.button("Confirm Test Details", key='test'):
             generate_content_message.write(f"Test with {num_questions_test} question(s) covering weeks {start_week_test} to {end_week_test} is being generated...")
-            content = generate_api(str(num_questions_test), "Test", str(start_week_test), str(end_week_test))
+            #content = generate_api(question_type,str(num_questions_test), "Test", str(start_week_test), str(end_week_test))
             generate_content_message.empty()
-            generate_txt_file("test",content[0])
-            generate_txt_file("answers","Answers: " + content[1])
+            st.session_state.confirm_test = True
+
+    if (st.session_state.confirm_test):    
+        generate_txt_file("test",content[0])
+        generate_txt_file("answers","Answers" + content[1])
+        #reset app
+        if st.button("Start Over"):
+            st.session_state.confirm_quiz = False
+            # Add any other state resets here
+            st.rerun()  # This will rerun the script from top to reset the app
 
 def generate_txt_file(type,text):
         btn = st.download_button(
         label="Download " +type+ " as a .txt file",
         data=text,
         file_name=type+".txt",
-        mime="text/plain")
+        mime="text/plain",
+        key = "download_"+type)
 
 if __name__ == "__main__":
     main()
