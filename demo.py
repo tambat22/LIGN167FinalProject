@@ -25,9 +25,10 @@ def generate_api(question_type,questions, content, start_week, end_week, topic):
         role="user",
         content= ("Create a " + questions + " question " + question_type + content + " that only HAS EXACTLY " + questions + 
                   " questions that is about the " + topic + " from week " + start_week + " to " + 
-                  " week " + end_week + ". A quiz should be easier than a test. Format it as a " + content + 
-                  " handout with questions and option choices in a new line, and then write 'Answers' and give me answer key for the questions"+ 
-                  " Then you MUST write 'JSON code' followed by JSON code for the quiz in a a JSON format following: [{questions,options,answers}]")
+                  " week " + end_week + ". A quiz should be easier than a test. Format it like a quiz/test that is ready to be " +
+                  " handed out with questions and option choices in a new line, and then write 'Answers' and give me answer key for the questions"+ 
+                  " Then write '''json after the answer key followed by the JSON code for the generated questions in a a JSON format for example like this format: [{questions,  \"options\": [\"A) Noun\", \"B) Verb\", \"C) Adjective\", \"D) Pronoun\"], answers:}]. Make sure that the options have letter options as well." +
+                  " There should not be any words after the JSON code. DO NOT WRITE anything else after the JSON code")
     )
     print("Message Created")
 
@@ -66,7 +67,8 @@ def generate_api(question_type,questions, content, start_week, end_week, topic):
 
     content = messages.data[0].content[0].text.value
     # Split the text into questions and answers
-    parts = content.split("Answers:")
+    parts = content.split("Answers")
+    print(content)
     parts2 = content.split("```json")
 
     questions_text = parts[0]
@@ -75,7 +77,7 @@ def generate_api(question_type,questions, content, start_week, end_week, topic):
 
     #print(questions_text)
     #print(answers_text)
-    #print(json_text)
+    print(json_text)
 
     st.write(questions_text)
     content = [questions_text,answers_text,json_text]
@@ -125,12 +127,21 @@ def main():
     if 'option' not in st.session_state:
         st.session_state.option = None
 
-    if st.sidebar.button("Generate Quiz/Test"):
+    def setPage():
+        st.session_state.option = None
+    def setQuiz():
+        st.session_state.confirm_quiz = False
+    
+    if st.sidebar.button("Generate Quiz/Test", on_click=setQuiz):
         st.session_state.option = 'quiz'
 
-    # Main page content based on sidebar selection
     if st.session_state.option == 'quiz':
         display_quiz_details()
+
+    if st.session_state.get("confirm_quiz", False):
+        if st.sidebar.button("Take "+ st.session_state.content_type, key="quizortest", on_click=setPage):
+            display_quiz()
+            
 
 def display_quiz_details():
     #keep track if confirm quiz button is clicked
@@ -143,9 +154,14 @@ def display_quiz_details():
         st.session_state.key_txt= False
 
     st.title("Additional Details")
-    st.write("Would you like to generate a quiz or test?")
-    quiz = st.checkbox("Quiz", key= "quizz")
-    test = st.checkbox("Test", key="test")
+    # Radio button for options
+    quiz_or_test = st.radio(
+        "What would you like to generate?",
+        ('Quiz', 'Test')
+    )
+
+    st.session_state.content_type = quiz_or_test
+
     st.write ("Select the type of questions you would like:")
     st.write("Note that if no option is selected, the question type will be defaulted to multiple choice ")
     multiple_choice = st.checkbox("Multiple Choice", key= "mc")
@@ -207,13 +223,13 @@ def display_quiz_details():
     if (num_questions_quiz and start_week_quiz and end_week_quiz and 
         start_week_quiz <= end_week_quiz and num_questions_quiz <= 25 and end_week_quiz <= 10 and start_week_quiz > 0):
         
-        if st.button("Confirm Quiz Details", key = "quiz"):
-            st.session_state.confirm_quiz = True
-            generate_content_message.write(f"Quiz with {num_questions_quiz} question(s) covering weeks {start_week_quiz} to {end_week_quiz} is being generated...")
+        if st.button("Confirm "+quiz_or_test+" Details", key = "quiz"):
+            generate_content_message.write(quiz_or_test + f" with {num_questions_quiz} question(s) covering weeks {start_week_quiz} to {end_week_quiz} is being generated...")
         
-            #st.session_state.content = generate_api(question_type, str(num_questions_quiz), "Quiz", str(start_week_quiz), str(end_week_quiz), topic)
-            st.session_state.content  = ["A","B","[{\"question\": \"Which of the following best describes the aspects used to describe consonants in phonetics?\", \"options\": {\"A\": \"Place, Manner\", \"B\": \"Voice, Manner\", \"C\": \"Place, Voice\", \"D\": \"Place, Manner, Voice\"}, \"answer\": \"D\"}]```"] 
+            st.session_state.content = generate_api(question_type, str(num_questions_quiz), quiz_or_test, str(start_week_quiz), str(end_week_quiz), topic)
+            #st.session_state.content  = ["A","B","C"]
             generate_content_message.empty()
+            st.session_state.confirm_quiz = True
 
         if st.session_state.get("confirm_quiz", False):
             # Check if content is already generated and stored in session_state
@@ -221,35 +237,44 @@ def display_quiz_details():
                 question_text, answers_text, json_text = st.session_state.content
 
                 # Generate text files based on the stored content
-                generate_txt_file("quiz", question_text)
+                generate_txt_file(quiz_or_test, question_text)
                 generate_txt_file("answers", "**Answers" + answers_text)
 
                 # Removing the leading and trailing triple quotes
-                json_string = json_text.strip("```")
+                json_string = json_text[:-3]
+                print(json_string)
 
-                # Now you can parse the JSON string
-                try:
-                    quiz_data = json.loads(json_string)
-                    print("Data loads successfully")
-                    # Further processing...
-                except json.JSONDecodeError as e:
-                    print(f"Error decoding JSON: {e}")
-                    quiz_data = json.loads(json_text)
-
-                # Button to start the quiz
-                if st.button("Take Quiz"):
-                    st.session_state.quiz_started = True
-
+                st.session_state.json = json_string
+                
                 # Display the quiz if the button was clicked
-                if st.session_state.get("quiz_started", False):
-                    take_quiz(quiz_data)
-
+                # if st.session_state.get("quiz_started", False):
+                #   take_quiz(quiz_data,quiz_or_test)
+                #
 
         #reset app
         if st.button("Start Over"):
             st.session_state.confirm_quiz = False
             # Add any other state resets here
             st.rerun()  # This will rerun the script from top to reset the app
+
+def display_quiz():
+    st.write("Answer each question to the best of your ability!")
+    if "content" in st.session_state:
+        json_string = st.session_state.json
+           
+        # Now you can parse the JSON string
+        try:
+            quiz_data = json.loads(json_string)
+            print("Data loads successfully")
+            # Further processing...
+        except json.JSONDecodeError as e:
+            print(f"Error decoding JSON: {e}")
+            quiz_data = json.loads(json_string)
+        
+    # Display the quiz if the button was clicked
+    if st.session_state.get("quiz_started", False):
+        quiz_or_test = st.session_state.content_type
+        take_quiz(quiz_data,quiz_or_test)
 
 def generate_txt_file(type,text):
         btn = st.download_button(
@@ -258,8 +283,9 @@ def generate_txt_file(type,text):
         file_name=type+".txt",
         mime="text/plain",
         key = "download_"+type)
+
 # Function to run the quiz
-def take_quiz(questions):
+def take_quiz(questions, test_type):
     if 'current_question' not in st.session_state:
         st.session_state.current_question = 0
         st.session_state.correct_answers = 0
@@ -267,26 +293,22 @@ def take_quiz(questions):
     question = questions[st.session_state.current_question]
     st.write(f"Question {st.session_state.current_question + 1}: {question['question']}")
 
-    # Format the options for display
-    options = question["options"]
-    formatted_options = [f"{key}: {value}" for key, value in options.items()]
-    user_answer_key = st.radio("Choose an answer:", formatted_options, key=f"question_{st.session_state.current_question}")
+    # The options are already formatted as a list
+    user_answer = st.radio("Choose an answer:", question["options"], key=f"question_{st.session_state.current_question}")
 
     # Check if it's the last question
     is_last_question = st.session_state.current_question == len(questions) - 1
-    button_label = "Submit Quiz" if is_last_question else "Next Question"
+    button_label = "Submit "+test_type if is_last_question else "Next Question"
 
     if st.button(button_label):
-        # Extract the key from the selected answer
-        selected_key = user_answer_key.split(":")[0]
-        if selected_key == question["answer"]:
+        if user_answer == question["answers"]:
             st.session_state.correct_answers += 1
         if not is_last_question:
             st.session_state.current_question += 1
-            st.experimental_rerun()
+            st.rerun()
         else:
             st.write(f"Quiz Completed! You got {st.session_state.correct_answers} out of {len(questions)} questions right.")
-            st.write(f"Number of incorrect answers: {len(questions) - st.session_state.correct_answers}")
+
 
 if __name__ == "__main__":
     main()
