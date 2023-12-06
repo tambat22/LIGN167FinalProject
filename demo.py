@@ -369,162 +369,155 @@ def display_interactive_quiz_details():
     #keep track if confirm quiz button is clicked
     if 'confirm_interactive_quiz' not in st.session_state:
         st.session_state.confirm_interactive_quiz = False
-    #tracking download buttons
-    # if 'quiz_txt' not in st.session_state:
-    #     st.session_state.quiz_txt = False
-    # if 'key_txt' not in st.session_state:
-    #     st.session_state.key_txt= False
 
     st.title("Additional Details")
     #ONLY MC QUESTIONS FOR ADAPTIVE TEST 
-    # st.write("Would you like to generate a quiz or test?")
-    # quiz = st.checkbox("Quiz", key= "quizz")
-    # test = st.checkbox("Test", key="test")
-    # st.write ("Select the type of questions you would like:")
-    # st.write("Note that if no option is selected, the question type will be defaulted to multiple choice ")
-    # multiple_choice = st.checkbox("Multiple Choice", key= "mc")
-    # short_answer = st.checkbox("Short Answer", key="short_answer")
-
-    num_questions_quiz = st.number_input("Number of Questions for Quiz", min_value=1, max_value=5, value=None, key='num_questions_quiz')
-    start_week_quiz = st.number_input("Start Week for Quiz", min_value=1, max_value=10, value=None, key='start_week_quiz')
-    end_week_quiz = st.number_input("End Week for Quiz", min_value=start_week_quiz, max_value=10, value=None, key='end_week_quiz')
+    with st.form('quiz_properties'):
+        num_questions_quiz = st.number_input("Number of Questions for Quiz", min_value=1, max_value=5, value=None, key='num_questions_quiz')
+        start_week_quiz = st.number_input("Start Week for Quiz", min_value=1, max_value=10, value=None, key='start_week_quiz')
+        end_week_quiz = st.number_input("End Week for Quiz", min_value=start_week_quiz, max_value=10, value=None, key='end_week_quiz')
     
-    st.write ("Are there any specific topic(s) you want a heavier emphasis on?")
-    # Dictionary to store the status of checkboxes
-    checkbox_status = {
-        "Syntax": False,
-        "Phonetics": False,
-        "Morphology": False,
-        "Phonology": False,
-        "Semantics and Pragmatics": False,
-        "Language Families": False,
-        "Theoretical Syntax": False,
-        "Speech Production and Perception": False,
-        "Linguistic Theory": False,
-        "Practical Applications in Linguistics": False
-    }
+        st.write ("Are there any specific topic(s) you want a heavier emphasis on?")
+        # Dictionary to store the status of checkboxes
+        checkbox_status = {
+            "Syntax": False,
+            "Phonetics": False,
+            "Morphology": False,
+            "Phonology": False,
+            "Semantics and Pragmatics": False,
+            "Language Families": False,
+            "Theoretical Syntax": False,
+            "Speech Production and Perception": False,
+            "Linguistic Theory": False,
+            "Practical Applications in Linguistics": False
+        }
 
-    # Function to update the list based on checkbox status
-    def update_selected_topics():
+        # Splitting the layout into two columns
+        col1, col2 = st.columns(2)
+
+        # Creating checkboxes in each column
+        topics = list(checkbox_status.keys())
+        for i, topic in enumerate(topics):
+            current_col = col1 if i < len(topics) / 2 else col2
+            checkbox_status[topic] = current_col.checkbox(topic, value=checkbox_status[topic])
+
+        start_interactive_quiz = st.form_submit_button('Confirm Quiz Details')
+
+        # Updating and displaying the list of selected topics
         selected_topics = [topic for topic, checked in checkbox_status.items() if checked]
-        return selected_topics
+        
 
-    # Splitting the layout into two columns
-    col1, col2 = st.columns(2)
+        generate_content_message = st.empty()
 
-    # Creating checkboxes in each column
-    topics = list(checkbox_status.keys())
-    for i, topic in enumerate(topics):
-        current_col = col1 if i < len(topics) / 2 else col2
-        checkbox_status[topic] = current_col.checkbox(topic, value=checkbox_status[topic])
+        #default question type
+        question_type = "multiple choice"
+        
+        topic = "general course material"
 
-    # Updating and displaying the list of selected topics
-    selected_topics = update_selected_topics()
-
-    generate_content_message = st.empty()
-
-    #default question type
-    question_type = "multiple choice"
+        if (selected_topics!=0):
+            topic = topic + " but with an emphasis on the following topic(s): "
+            for topic_clicked in selected_topics:
+                topic = topic + ", " + topic_clicked
     
-    topic = "general course material"
-
-    if (selected_topics!=0):
-        topic = topic + " but with an emphasis on the following topic(s): "
-        for topic_clicked in selected_topics:
-            topic = topic + ", " + topic_clicked
-
     if (num_questions_quiz and start_week_quiz and end_week_quiz and 
         start_week_quiz <= end_week_quiz and num_questions_quiz <= 25 and end_week_quiz <= 10 and start_week_quiz > 0):
-        
-        if st.button("Confirm Quiz Details", key = "quiz"):
-            # st.session_state.confirm_quiz = True
-            # generate_content_message.write(f"Quiz with {num_questions_quiz} question(s) covering weeks {start_week_quiz} to {end_week_quiz} is being generated...")
-        
-            # st.session_state.content = generate_api(question_type, str(num_questions_quiz), "Quiz", str(start_week_quiz), str(end_week_quiz), topic)
-            # #st.session_state.content  = ["A","B","[{\"question\": \"Which of the following best describes the aspects used to describe consonants in phonetics?\", \"options\": {\"A\": \"Place, Manner\", \"B\": \"Voice, Manner\", \"C\": \"Place, Voice\", \"D\": \"Place, Manner, Voice\"}, \"answer\": \"D\"}]```"] 
-            # generate_content_message.empty()
+        if start_interactive_quiz:
             take_interactive_quiz(num_questions_quiz,topic)
+            # if st.button("Confirm Quiz Details", key = "quiz"):
+            #     # st.session_state.confirm_quiz = True
+            #     # generate_content_message.write(f"Quiz with {num_questions_quiz} question(s) covering weeks {start_week_quiz} to {end_week_quiz} is being generated...")
+            
+            #     # st.session_state.content = generate_api(question_type, str(num_questions_quiz), "Quiz", str(start_week_quiz), str(end_week_quiz), topic)
+            #     # #st.session_state.content  = ["A","B","[{\"question\": \"Which of the following best describes the aspects used to describe consonants in phonetics?\", \"options\": {\"A\": \"Place, Manner\", \"B\": \"Voice, Manner\", \"C\": \"Place, Voice\", \"D\": \"Place, Manner, Voice\"}, \"answer\": \"D\"}]```"] 
+            #     # generate_content_message.empty()
+            #     take_interactive_quiz(num_questions_quiz,topic)
 
-        if st.session_state.get("confirm_quiz", False):
-            # Check if content is already generated and stored in session_state
-            if "content" in st.session_state:
-                question_text, answers_text, json_text = st.session_state.content
-                
-                # Removing the leading and trailing triple quotes
-                json_string = json_text.strip("```")
+            # if st.session_state.get("confirm_quiz", False):
+            #     # Check if content is already generated and stored in session_state
+            #     if "content" in st.session_state:
+            #         question_text, answers_text, json_text = st.session_state.content
+                    
+            #         # Removing the leading and trailing triple quotes
+            #         json_string = json_text.strip("```")
 
-                # Now you can parse the JSON string
-                try:
-                    quiz_data = json.loads(json_string)
-                    print("Data loads successfully")
-                    # Further processing...
-                except json.JSONDecodeError as e:
-                    print(f"Error decoding JSON: {e}")
-                    quiz_data = json.loads(json_text)
+            #         # Now you can parse the JSON string
+            #         try:
+            #             quiz_data = json.loads(json_string)
+            #             print("Data loads successfully")
+            #             # Further processing...
+            #         except json.JSONDecodeError as e:
+            #             print(f"Error decoding JSON: {e}")
+            #             quiz_data = json.loads(json_text)
 
-                # Button to start the quiz
-                if st.button("Take Quiz"):
-                    st.session_state.interactive_quiz_started = True
+            #         # Button to start the quiz
+            #         if st.button("Take Quiz"):
+            #             st.session_state.interactive_quiz_started = True
 
-                # Display the quiz if the button was clicked
-                if st.session_state.get("interactive_quiz_started", False):
-                    print("ABOOUT TO TAKE INTERACTIVE QUIZ")
-                    take_interactive_quiz(num_questions_quiz,topic)
+            #         # Display the quiz if the button was clicked
+            #         if st.session_state.get("interactive_quiz_started", False):
+            #             print("ABOOUT TO TAKE INTERACTIVE QUIZ")
+            #             take_interactive_quiz(num_questions_quiz,topic)
 
 
-        #reset app
-        if st.button("Start Over"):
-            st.session_state.confirm_interactive_quiz = False
-            # Add any other state resets here
-            st.rerun()  # This will rerun the script from top to reset the app
+            # #reset app
+            # if st.button("Start Over"):
+            #     st.session_state.confirm_interactive_quiz = False
+            #     # Add any other state resets here
+            #     st.rerun()  # This will rerun the script from top to reset the app
 def take_interactive_quiz(numQuestions,topics):
     thread = client.beta.threads.create()
-    difficulties = {1 : "easy", 2 : "medium", 3 : "hard"}
-    if 'current_question' not in st.session_state:
-        st.session_state.current_question = 0
-        st.session_state.correct_answers = 0
-    if 'latest_response' not in st.session_state: 
-        st.session_state.latest_response = ""
-        st.session_state.current_difficulty = 1
-    
-    is_last_question = st.session_state.current_question == numQuestions - 1
-    button_label = "Submit Quiz" if is_last_question else "Next Question"
-    
-    #generate current question 
-    st.session_state.latest_response = interactive_test(thread,st.session_state.current_question,numQuestions,topics)
-    question = parse_interactive_json(st.session_state.latest_response)[0]
-    print("PARSED QUESTION")
-    print(question)
-    # print(question)
-    # question = questions[st.session_state.current_question]
-    st.write(f"Question {st.session_state.current_question + 1}: {question}")
+    with st.form("quiz_questions"):
+        difficulties = {1 : "easy", 2 : "medium", 3 : "hard"}
+        if 'current_question' not in st.session_state:
+            st.session_state.current_question = 0
+            st.session_state.correct_answers = 0
+        if 'latest_response' not in st.session_state: 
+            st.session_state.latest_response = ""
+            st.session_state.current_difficulty = 1
+        
+        #generate current question 
+        st.session_state.latest_response = test_response()
+        #interactive_test(thread,st.session_state.current_question,numQuestions,topics)
+        question = parse_interactive_json(st.session_state.latest_response)[0]
+        print("PARSED QUESTION")
+        print(question)
+        # print(question)
+        # question = questions[st.session_state.current_question]
+        st.write(f"Question {st.session_state.current_question + 1}: {question['question']}")
 
-    # # Format the options for display
-    options = question["options"]
-    formatted_options = [f"{key}: {value}" for key, value in options.items()]
-    user_answer_key = st.radio("Choose an answer:", formatted_options, key=f"question_{st.session_state.current_question}")
+        # # Format the options for display
+        options = question["options"]
+        formatted_options = [f"{key}: {value}" for key, value in options.items()]
+        user_answer_key = st.radio("Choose an answer:", formatted_options, key=f"question_{st.session_state.current_question}")
 
-    # Check if it's the last question
-    is_last_question = st.session_state.current_question == numQuestions - 1
-    button_label = "Submit Quiz" if is_last_question else "Next Question"
+        # Check if it's the last question
+        is_last_question = st.session_state.current_question == numQuestions - 1
+        button_label = "Submit Quiz" if is_last_question else "Next Question"
 
-    if st.button(button_label):
-        # Extract the key from the selected answer
-        selected_key = user_answer_key.split(":")[0]
-        if selected_key == question["answer"]:
-            st.session_state.correct_answers += 1
-        if not is_last_question:
-            st.session_state.current_question += 1
-            st.write("NEXT QUESTION!!")
-            #st.experimental_rerun()
-        else:
-            #st.write(f"Quiz Completed! You got {st.session_state.correct_answers} out of {len(questions)} questions right.")
-            #st.write(f"Number of incorrect answers: {len(questions) - st.session_state.correct_answers}")
-            #completion = st.session_state.latest_response
-            st.write("QUIZ COMPLETED!!")
+        if st.button(button_label):
+            # Extract the key from the selected answer
+            selected_key = user_answer_key.split(":")[0]
+            print(selected_key)
+            if selected_key == question["answer"]:
+                st.session_state.correct_answers += 1
+            if not is_last_question:
+                st.session_state.current_question += 1
+                st.write("NEXT QUESTION!!")
+                #st.experimental_rerun()
+            else:
+                #st.write(f"Quiz Completed! You got {st.session_state.correct_answers} out of {len(questions)} questions right.")
+                #st.write(f"Number of incorrect answers: {len(questions) - st.session_state.correct_answers}")
+                #completion = st.session_state.latest_response
+                st.write("QUIZ COMPLETED!!")
+
+def test_response():
+    return """  Now, here is the JSON code for the quiz: 
+```json[{"question": "What is the default word order in Turkish?","options": {"a": "Subject-Object-Verb (SOV)","b": "Subject-Verb-Object (SVO)", \
+"c": "Verb-Subject-Object (VSO)", "d": "Verb-Object-Subject (VOS)"}, "solution": "a","explanation": "The default word order in Turkish is Subject-Object-Verb (SOV). This means that the subject comes first, followed by the object, and then the verb."}]```
+"""
 
 def parse_interactive_json(response):
-    json_string = response.split("```json")[1].strip('```')
+    json_string = response.split("```json")[1].split("```")[0]
     try:
         res = json.loads(json_string)
         print("Interactive Json parsed successfully")
