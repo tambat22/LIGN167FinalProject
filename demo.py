@@ -4,7 +4,7 @@ import os
 from dotenv import load_dotenv
 import time
 import json
-
+import random
 #run 'source .venv/bin/activate' on mac
 #$ streamlit run demo.py
 
@@ -308,30 +308,26 @@ def take_quiz(questions,submitted):
     #keep track of difficulty
 def interactive_test(thread,question_number,numQuestions,difficulty):
     print("thread created")
-    time.sleep(10)
+    #time.sleep(10)
     #TODO Make questions use topic from argument instead of hard coding
-    gpt_query = "Give me a practice question on either the topic of japanese syntax or turkish syntax. Then you MUST write 'JSON code' followed by JSON code for the quiz in a a JSON format following: [{question,options,solution and detailed explanation}]." \
+    # gpt_query = "Give me a practice question on either the topic of japanese syntax or turkish syntax. Then you MUST write 'JSON code' followed by JSON code for the quiz in a a JSON format following: [{question,options,correct_option,explanation, and difficulty}]." \
     
-    if question_number == 0:
-        gpt_query = "Give me a SINGLE practice question on any topic covered in the provided materials. Then you MUST write 'JSON code' followed by JSON code for the quiz in a a JSON format following: [{question,options,solution and detailed explanation}]. MAKE SURE OPTIONS IS ENCODED AS A DICTIONARY."
-    elif question_number == numQuestions:
-        gpt_query = "Give me a detailed breakdown of my performance, like the number of questions I got correct/incorrect as well as a detailed study plan and resources to improve my performance."
-    else:
-        gpt_query = "Give me a SINGLE practice question on either the topic of japanese syntax or turkish syntax. Give me a question of hard difficulty. MAKE SURE YOU DO NOT GIVE ME A QUESTION THAT YOU HAVE ASKED BEFORE. Then you MUST write 'JSON code' followed by JSON code for the quiz in a a JSON format following: [{question,options,solution and detailed explanation}]. MAKE SURE OPTIONS IS ENCODED AS A DICTIONARY"
+    # else:
+    gpt_query = f"Generate EXACTLY ONE practice question of {difficulty} difficulty based on any topic covered in the provided materials. MAKE SURE YOU DO NOT GIVE ME A REPEAT QUESTION. Then you MUST write THIS EXACT STRING : '$JSON' followed by JSON code for the quiz in a a JSON format following: [{{question,options,correct option,explanation, and difficulty}}]. MAKE SURE OPTIONS IS ENCODED AS A DICTIONARY"
     
     message = client.beta.threads.messages.create(
         thread_id=thread.id,
         role="user",
         content = gpt_query)
     print("message created")
-    time.sleep(10)
+    time.sleep(5)
     
     run = client.beta.threads.runs.create(
         thread_id = thread.id,
         assistant_id = "asst_kO68ZsnTzqtfhLaHTMws9dsF"
     )    
     print("First run created")
-    time.sleep(10)
+    time.sleep(5)
     run_status = client.beta.threads.runs.retrieve(thread_id=thread.id,run_id=run.id)
     
     print("attempting to retrieve run ")
@@ -343,7 +339,7 @@ def interactive_test(thread,question_number,numQuestions,difficulty):
             run_id=run.id
         )
 
-        time.sleep(10)
+        #time.sleep(10)
         print(run_status.status)
         
         if (run_status.status=="failed"):
@@ -367,75 +363,82 @@ def display_interactive_test(max_questions):
     thread = client.beta.threads.create()       
     #
     difficulties = {1 : 'easy', 2 : 'medium', 3 : 'hard'}
+    st.session_state.difficulty = 1
+    if 'feedback' not in st.session_state:
+        st.session_state.feedback = ""
+    
+    #After each question is answered, add Question (Difficulty) new line Solution new Line to build feedback
     if 'test_started' not in st.session_state:
-        st.write("This is a comprehensive final exam of adaptive difficulty. The questions will cover every aspect of the course.")
-        print('setting to false')
+        st.write("This is a comprehensive practice final exam of adaptive difficulty. The questions can cover any aspect of the course.")
         st.session_state.test_started = False
+    
     if 'test_started' in st.session_state and st.session_state.test_started and st.session_state.latest_question != "":
         print("QUESTION NUMBER",st.session_state.current_question)
         # st.write(st.session_state.latest_question)
         question = st.session_state.latest_question
         options = question["options"]
         formatted_options = [f"{key}: {value}" for key, value in options.items()]
-        #TODO ADD DIFFICULTY AND RANDOMIZE ON THIRD
-        st.write(question['question'])
-        user_answer_key = st.radio("Choose an answer:", formatted_options, key=f"question_{st.session_state.current_question}")
-   #Mark as true once last message is reached
-    # if 'test_completed' in st.session_state:
-    #     if (st.button("complete_test")):
-    #         #show solutions 
-    #         print('test completed')
-    #         st.session_state.test_completed = False
 
+        st.write(f"Question {st.session_state.current_question}: {question['question']}")
+        st.session_state.user_answer = st.radio("Choose an answer:", formatted_options, key=f"question_{st.session_state.current_question}").split(":")[0]
+        st.session_state.correct_answer = question['correct_option']
+    
     if 'current_question' not in st.session_state:
         st.session_state.current_question = 0
         st.session_state.correct_answers = 0
         st.session_state.latest_question = ""
     
     is_last_question = st.session_state.current_question == max_questions
-    button_label = "Submit Quiz" if is_last_question else ("Next Question" if st.session_state.test_started else "Begin Test" )
+    button_label = "Submit Quiz" if is_last_question else ("Next Question" if st.session_state.test_started else "Begin Assessment" )
     # print("SESSION STATE : ",st.session_state.test_started)
     
     if st.button(button_label):
-        if button_label == "Begin Test":
+        
+        if button_label == "Begin Assessment":
             st.session_state.test_started = True
             st.session_state.current_question += 1
-            # st.session_state.latest_question = (parse_interactive_json(test_response())[0])
-            st.session_state.latest_question = (parse_interactive_json(interactive_test(thread,st.session_state.current_question,max_questions,"easy"))[0])
-            st.experimental_rerun()
+            #st.session_state.latest_question = (parse_interactive_json(test_response())[0])
+            st.session_state.latest_question = (parse_interactive_json(interactive_test(thread,st.session_state.current_question,max_questions,difficulties[st.session_state.difficulty]))[0])
             #Starting difficulty is 1 
-            # st.session_state.difficulty =
-            print("Begin Test")
+            st.session_state.difficulty = 1
+            st.experimental_rerun()
+        
         elif button_label == "Next Question":
             # st.session_state.current_question += 1
-            st.session_state.latest_question = (parse_interactive_json(interactive_test(thread,st.session_state.current_question,max_questions,"easy"))[0])
-            # st.session_state.latest_question = (parse_interactive_json(test_response())[0])
-            #TODO: Check current answer, increment score store feedback to display at the end.
-            print(f"increment + {st.session_state.current_question}")
-            print("Continue Test")
+            st.session_state.latest_question = (parse_interactive_json(interactive_test(thread,st.session_state.current_question,max_questions,difficulties[st.session_state.difficulty]))[0])
+            #st.session_state.latest_question = (parse_interactive_json(test_response())[0])
+            if st.session_state.user_answer == st.session_state.correct_answer:
+                st.session_state.correct_answers += 1
+                print("CORERCT")
+                #If they get it correct, give a medium/hard question
+                st.session_state.difficulty = random.randint(2,3)
+            
+            #They answered incorrectly
+            else:
+                st.session_state.difficulty = 1 if (st.session_state.difficulty == 1 or st.session_state.difficulty == 2) else 2
+            st.session_state.feedback = st.session_state.feedback + f"Solution for Question {st.session_state.current_question} ({difficulties[st.session_state.difficulty]}): \n {st.session_state.latest_question['explanation']} So, the correct answer was {st.session_state.latest_question['correct_option']}"
+            print("updated feedback",st.session_state.feedback)
             st.session_state.current_question += 1
             st.experimental_rerun()
-            # options = question["options"]
-            # formatted_options = [f"{key}: {value}" for key, value in options.items()]
-            # user_answer_key = st.radio("Choose an answer:", formatted_options, key=f"question_{st.session_state.current_question}")
+        
+        #Submit button    
         else:
-            print("End test")
-            #TODO Maybe have option to start over
-        # if button_label == "Submit Quiz":
-        #     print("End test")
+            st.session_state.feedback = st.session_state.feedback + f"Solution for Question {st.session_state.current_question} ({difficulties[st.session_state.difficulty]}): \n {st.session_state.latest_question['explanation']} So, the correct answer was {st.session_state.latest_question['correct_option']}"
+            #print("updated feedback",st.session_state.feedback)
+            # st.session_state.current_question += 1
+            #st.experimental_rerun()
+            st.write("Here is detailed feedback on your performance: ")
+            st.write(f"Score : {st.session_state.correct_answers}/{max_questions}")
+            st.write("Question Breakdown:")
             
-    # if st.button("begin_test"):
-    #     st.write("show solution : ")
-    #     st.session_state.test_started = True
-    # if "test_started" in st.session_state and st.session_state.test_started == True:
-    #     if st.button("next_question"):
-    #         st.session_state.test_started == True
-    #         st.session_state.test_completed = True
-    #         print("here")
+            print("final feedback",st.session_state.feedback)
+            #for some resaon st.write not working with newline char? loop and write instead
+            for substr in st.session_state.feedback.split('Solution for')[1:]:
+                st.write('Feedback for ' + substr)
     
 def parse_interactive_json(response):
     print("UPDATED JSON")
-    json_string = response.split("```json")[1].strip('```')
+    json_string = response.split("$JSON")[1].strip('```')
     try:
         res = json.loads(json_string)
         print("Interactive Json parsed successfully")
@@ -444,22 +447,14 @@ def parse_interactive_json(response):
         print(f"Error decoding JSON: {e}")
         res = json.loads(json_string)
     return res
+
 def test_response():
     return """  Now, here is the JSON code for the quiz: 
-```json[{"question": "What is the default word order in Turkish?","options": {"a": "Subject-Object-Verb (SOV)","b": "Subject-Verb-Object (SVO)", \
-"c": "Verb-Subject-Object (VSO)", "d": "Verb-Object-Subject (VOS)"}, "solution": "a","explanation": "The default word order in Turkish is Subject-Object-Verb (SOV). This means that the subject comes first, followed by the object, and then the verb."}]
+``` $JSON[{"question": "What is the default word order in Turkish?","options": {"a": "Subject-Object-Verb (SOV)","b": "Subject-Verb-Object (SVO)", \
+"c": "Verb-Subject-Object (VSO)", "d": "Verb-Object-Subject (VOS)"}, "correct_option": "a","explanation": "The default word order in Turkish is Subject-Object-Verb (SOV). This means that the subject comes first, followed by the object, and then the verb."}]
 ```"""
 if __name__ == "__main__":
-    # gen_api_test("10","Test","0","10","morphology")
     # interactive_test()
     main()
     #main()
     
-    
-    
-#Have a loop that runs up until the number of questions the user requested for 
-#Send request for problem and solution with gpt 
-#Check if user's answer matches GPT's asnwer 
-#Display Solution
-#If user gets it correct, increase difficulty, user gets it incorrect, decrease difficulty, suer 
-#When user clicks next, repeat
