@@ -15,11 +15,6 @@ load_dotenv()
 client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'),organization=os.getenv('OPENAI_ORG_ID'))
 assistant = client.beta.assistants.retrieve("asst_C3Iyis7iFQ0HP7PFseOl1zZz")
 
-#assistant = client.beta.assistants.update(
-#    "asst_C3Iyis7iFQ0HP7PFseOl1zZz",
-#    instructions= "You are an Instructional Assistant for a Linguistics Professor. Your job is to generate practice questions that are based on the course materials that are in the attached files. You need to generate your own questions, do not directly copy questions from the provided material. The generated question should be on a scale of three levels of difficulty: easy, medium, and hard. Do NOT generate repeat questions. You should generate comprehensive questions based on the content from the weeks specified by the user and desired number of questions. Make sure to generate ALL QUESTIONS, and EXACTLY the number of questions specified. DO NOT prompt the user for further instructions. DO NOT say anything else or prompt them for anything other than the answer to the question. DO NOT ask the user for their desired difficulty, instead use your best judgement when determining the difficulty of the questions. DO NOT show the difficulty level of the questions to the user."
-#)
-
 #print(assistant)
 
 def generate_api(question_type,questions, content, start_week, end_week, topic):
@@ -32,10 +27,10 @@ def generate_api(question_type,questions, content, start_week, end_week, topic):
         role="user",
         content= ("Create a " + questions + " question " + question_type +" "+ content + " that only HAS EXACTLY " + questions + 
                   " questions that is about the " + topic + " from week " + start_week + " to " + 
-                  " week " + end_week + ". If there is at least 2 total questions, make it so there is at least one of each type of " +question_type +". For a multiple choice type question, each question should be numbered and should each have letter options and a short answer type should be free response." + 
+                  " week " + end_week + ". All multiple choice questions should have letter optins. " + 
                   "Format it like a quiz/test hand out. Title it " + content + "Then show the questions and answer choices. After write 'Answers' and give me answer key for the questions"+ 
                   " Next write '''json followed by the JSON code for ONLY the multiple choice type questions in a a JSON format like this format: [{questions,  \"options\": [\"A) Noun\", \"B) Verb\", \"C) Adjective\", \"D) Pronoun\"], answer:}]. Make sure that the options have letter options as well." +
-                  " DO NOT WRITE anything else after the JSON code and only give me the JSON code for multiple choice type questions")
+                  " DO NOT WRITE anything else after the JSON code.")
     )
     print("Message Created")
 
@@ -128,8 +123,9 @@ def main():
 
     st.sidebar.title("Welcome to LIGN 101: Introduction to Linguistics")
     st.sidebar.write("Please select an option below.")
-    st.sidebar.write("Due to API usage limitations, the maximum number of questions will be limited to 25 questions")
-    st.sidebar.write("You will also be allowed to choose the range of week(s) from 1 - 10 to cover for each quiz/test.")
+    st.sidebar.write("Quiz/Test Generation allows users to generate a quiz or test based a number of selections. You will also be allowed to choose the range of week(s) from 1 - 10 to cover for each quiz/test. Due to API usage limitations, the maximum number of questions will be limited to 25 questions")
+    st.sidebar.write("Practice Questions is a place for you to practice answering unlimited questions.")
+    st.sidebar.write("The Generative Adaptive Assessment will provide feedback on a number of questions you wish to generate, this had been set to 3 due to API usage limitations.")
     st.sidebar.write("Press enter after each selection and wait for running to finish loading.")
 
     # Using session state to track which option was selected
@@ -163,42 +159,50 @@ def main():
             display_quiz()
             
 def take_practice_quiz():
+    st.write("Practice answering questions to help you understand the content")
+    st.write("Please select the answer to the question by clicking on a button, the first button is defaulted to be selected, but you still must click on a button choice, including the first option in order for your answer to be read by the system.")
     content = st.empty()
-    content.write("Generating question...")
     if 'current_question_index' not in st.session_state:
-        st.session_state.current_question_index = 0
+        st.session_state.current_question_index = 1
         st.session_state.correct_p_answers = 0
-        st.session_state.current_p_answers = None
-        st.session_state.current_p_question = None
-        st.session_state.current_p_options = None
+        st.session_state.current_p_answers = "A"
+        st.session_state.current_p_question = "Test"
+        st.session_state.current_p_options = "B"
         st.session_state.practice_thread = None  # Initialize thread state
         st.session_state.next_question = False
+        st.session_state.start_practice = True
+        st.session_state.user_answer = None
 
         thread = client.beta.threads.create()
-        st.session_state.practice_thread = thread.id
         print("Thread created")
+        
+        st.session_state.practice_thread = thread.id
+        content.write("Generating question...")
+
         st.session_state.current_p_question, st.session_state.current_p_options, st.session_state.current_p_answers = practice_question_generation(st.session_state.practice_thread)
-        content = st.empty()
-        content2 = st.empty()
+
+    if st.button("Next Question"):
+        content.empty()
+        st.session_state.current_p_question, st.session_state.current_p_options, st.session_state.current_p_answers = practice_question_generation(st.session_state.practice_thread)
+        st.session_state.current_question_index += 1
+        if st.session_state.user_answer == st.session_state.current_p_answers:
+            st.session_state.correct_p_answers += 1
+        print(st.session_state.correct_p_answers)
 
     # Display the current count
-    content.write(f"Question: " + st.session_state.current_p_question)
-    content2 = st.radio("Choose an answer:", st.session_state.current_p_options, key=f"question_{st.session_state.current_question_index}")
+    st.write(f"Question " + str(st.session_state.current_question_index) + ": " + st.session_state.current_p_question)
+    print(st.session_state.current_p_options)
+    st.session_state.user_answer = st.radio("Choose an answer:",
+        list(st.session_state.current_p_options.keys()),
+        format_func=lambda key: f"{key}: {st.session_state.current_p_options[key]}",
+        key=f"question_{st.session_state.current_question_index}")
     
-    col1, col2 = st.columns(2)
-
-    if col2.button("Next Question"):
-        st.session_state.current_question_index += 1
-        if content2 == st.session_state.current_p_answers:
+    if st.button("End Practice"):
+        if st.session_state.user_answer == st.session_state.current_p_answers:
             st.session_state.correct_p_answers += 1
-        print (st.session_state.current_question_index)
-        st.session_state.current_p_question, st.session_state.current_p_options, st.session_state.current_p_answers = practice_question_generation(st.session_state.practice_thread)
-
-    if col1.button("End Practice"):
-        if content2 == st.session_state.current_p_answers:
-            st.session_state.correct_p_answers += 1
-        st.write(f"Practice Completed! You got {str(st.session_state.correct_p_answers)} out of {str(st.session_state.current_question_index + 1)} questions right.")
-
+        st.session_state.start_practice = False
+        print(st.session_state.correct_p_answers)
+        st.write(f"Practice Completed! You got {str(st.session_state.correct_p_answers)} out of {str(st.session_state.current_question_index)} questions right.")
 
 
 def display_quiz_details():
@@ -220,10 +224,10 @@ def display_quiz_details():
 
     st.session_state.content_type = quiz_or_test
 
-    st.write ("Select the type of questions you would like:")
-    st.write("Note that if no option is selected, the question type will be defaulted to multiple choice ")
-    multiple_choice = st.checkbox("Multiple Choice", key= "mc")
-    short_answer = st.checkbox("Short Answer", key="short_answer")
+    #st.write ("Select the type of questions you would like:")
+    #st.write("Note that if no option is selected, the question type will be defaulted to multiple choice ")
+    #multiple_choice = st.checkbox("Multiple Choice", key= "mc")
+    #short_answer = st.checkbox("Short Answer", key="short_answer")
 
     num_questions_quiz = st.number_input("Number of Questions for "+quiz_or_test, min_value=1, max_value=25, value=None, key='num_questions_quiz')
     start_week_quiz = st.number_input("Start Week for " +quiz_or_test, min_value=1, max_value=10, value=None, key='start_week_quiz')
@@ -266,10 +270,10 @@ def display_quiz_details():
     #default question type
     question_type = "multiple choice"
 
-    if (multiple_choice and short_answer):
-        question_type = "multiple choice and short answer"
-    elif (short_answer):
-        question_type = "short answer"
+    #if (multiple_choice and short_answer):
+    #    question_type = "multiple choice and short answer"
+    #elif (short_answer):
+    #    question_type = "short answer"
     
     topic = "general course material"
 
@@ -360,43 +364,18 @@ def take_quiz(questions, test_type):
     button_label = "Submit "+test_type if is_last_question else "Next Question"
 
     if st.button(button_label):
-        if user_answer == question["answers"]:
+        if user_answer == question["answer"]:
             st.session_state.correct_answers += 1
         if not is_last_question:
             st.session_state.current_question += 1
         else:
             st.write(f"Quiz Completed! You got {st.session_state.correct_answers} out of {len(questions)} questions right.")
 
-def display_practice():
-   # Initialize state variables
-    if 'start_practice' not in st.session_state:
-        st.session_state.start_practice = False
-        st.session_state.current_question_index = 0
-        st.session_state.correct_p_answers = None
-        st.session_state.current_p_question = "TestQ"
-        st.session_state.current_p_options = "A"
-        st.session_state.practice_thread = None  # Initialize thread state
-        st.session_state.next_question = False
-
-    if st.button("Start Practice Questions") and not st.session_state.start_practice:
-        st.session_state.start_practice = True
-
-        # Create a thread only if it hasn't been created yet
-        if st.session_state.practice_thread is None:
-            thread = client.beta.threads.create()
-            st.session_state.practice_thread = thread.id
-            print("Thread created")
-            #practice_question_generation(thread.id)
-
-        if st.session_state.start_practice:     
-            take_practice_quiz()
-        
-
 def practice_question_generation(thread):
     message = client.beta.threads.messages.create(
     thread_id=thread,
     role="user",
-    content= ("Write '''json and write the JSON CODE for EXACTLY ONE multiple choice question about the content of the class from weeks 1 - 10. The answer options should have letter choices. Format the response in JSON like this format: [{\"question\",  \"options\":, \"answer\":}], and only give me the response in JSON format. For every response format it exactly like this and give me this output.")
+    content= ("Write '''json and then write the JSON CODE for EXACTLY ONE multiple choice question about the content of the class from weeks 1 - 10. Format the response in JSON like this format: [{\"question\":,  \"options\": {\"A\": \"Red\",\"B\":\"Yellow\"}, \"answer\":}], and only give me the response in JSON format. ONLY give me one question in JSON format. Change the difficulty level of the question depending on how well the user is performing.")
     )
 
     print("Message Created for Practice")
@@ -435,8 +414,8 @@ def practice_question_generation(thread):
     )
 
     content = messages.data[0].content[0].text.value
-    part1 = content.split("'''json")
-    part1 = part1[0].split("'''")
+    part1 = content.split("```json")
+    part1 = part1[0].split("```")
     print("loading json")
     print(part1[0])
     json_string = part1[0]
