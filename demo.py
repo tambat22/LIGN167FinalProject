@@ -375,7 +375,7 @@ def practice_question_generation(thread):
     message = client.beta.threads.messages.create(
     thread_id=thread,
     role="user",
-    content= ("Write '''json and then write the JSON CODE for EXACTLY ONE multiple choice question about the content of the class from weeks 1 - 10. Format the response in JSON like this format: [{\"question\":,  \"options\": {\"A\": \"Red\",\"B\":\"Yellow\"}, \"answer\":}], and only give me the response in JSON format. ONLY give me one question in JSON format. Change the difficulty level of the question depending on how well the user is performing.")
+    content= ("Write the JSON CODE for EXACTLY ONE multiple choice question about the content of the class from weeks 1 - 10. Format the response in JSON like this format: [{\"question\":,  \"options\": {\"A\": \"Red\",\"B\":\"Yellow\"}, \"answer\":}], and only give me the response in JSON format. ONLY give me one question in JSON format.")
     )
 
     print("Message Created for Practice")
@@ -415,7 +415,7 @@ def practice_question_generation(thread):
 
     content = messages.data[0].content[0].text.value
     part1 = content.split("```json")
-    part1 = part1[0].split("```")
+    part1 = part1[1].split("```")
     print("loading json")
     print(part1[0])
     json_string = part1[0]
