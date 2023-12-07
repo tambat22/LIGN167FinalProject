@@ -15,6 +15,13 @@ load_dotenv()
 client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'),organization=os.getenv('OPENAI_ORG_ID'))
 assistant = client.beta.assistants.retrieve("asst_C3Iyis7iFQ0HP7PFseOl1zZz")
 
+#assistant = client.beta.assistants.update(
+#    "asst_C3Iyis7iFQ0HP7PFseOl1zZz",
+#    instructions= "You are an Instructional Assistant for a Linguistics Professor. Your job is to generate practice questions that are based on the course materials that are in the attached files. You need to generate your own questions, do not directly copy questions from the provided material. The generated question should be on a scale of three levels of difficulty: easy, medium, and hard. Do NOT generate repeat questions. You should generate comprehensive questions based on the content from the weeks specified by the user and desired number of questions. Make sure to generate ALL QUESTIONS, and EXACTLY the number of questions specified. DO NOT prompt the user for further instructions. DO NOT say anything else or prompt them for anything other than the answer to the question. DO NOT ask the user for their desired difficulty, instead use your best judgement when determining the difficulty of the questions. DO NOT show the difficulty level of the questions to the user."
+#)
+
+#print(assistant)
+
 def generate_api(question_type,questions, content, start_week, end_week, topic):
     thread = client.beta.threads.create()
     print("Thread Created")
@@ -23,12 +30,12 @@ def generate_api(question_type,questions, content, start_week, end_week, topic):
     message = client.beta.threads.messages.create(
         thread_id=thread.id,
         role="user",
-        content= ("Create a " + questions + " question " + question_type + content + " that only HAS EXACTLY " + questions + 
+        content= ("Create a " + questions + " question " + question_type +" "+ content + " that only HAS EXACTLY " + questions + 
                   " questions that is about the " + topic + " from week " + start_week + " to " + 
-                  " week " + end_week + ". A quiz should be easier than a test. Format it like a quiz/test that is ready to be " +
-                  " handed out with questions and option choices in a new line, and then write 'Answers' and give me answer key for the questions"+ 
-                  " Then write '''json after the answer key followed by the JSON code for the generated questions in a a JSON format for example like this format: [{questions,  \"options\": [\"A) Noun\", \"B) Verb\", \"C) Adjective\", \"D) Pronoun\"], answers:}]. Make sure that the options have letter options as well." +
-                  " There should not be any words after the JSON code. DO NOT WRITE anything else after the JSON code")
+                  " week " + end_week + ". If there is at least 2 total questions, make it so there is at least one of each type of " +question_type +". For a multiple choice type question, each question should be numbered and should each have letter options and a short answer type should be free response." + 
+                  "Format it like a quiz/test hand out. Title it " + content + "Then show the questions and answer choices. After write 'Answers' and give me answer key for the questions"+ 
+                  " Next write '''json followed by the JSON code for ONLY the multiple choice type questions in a a JSON format like this format: [{questions,  \"options\": [\"A) Noun\", \"B) Verb\", \"C) Adjective\", \"D) Pronoun\"], answer:}]. Make sure that the options have letter options as well." +
+                  " DO NOT WRITE anything else after the JSON code and only give me the JSON code for multiple choice type questions")
     )
     print("Message Created")
 
@@ -66,18 +73,20 @@ def generate_api(question_type,questions, content, start_week, end_week, topic):
     )
 
     content = messages.data[0].content[0].text.value
+    print("Printing content of response:")
+    #print(content)
     # Split the text into questions and answers
     parts = content.split("Answers")
-    print(content)
-    parts2 = content.split("```json")
+    print(parts)
+    parts2 = parts[1].split("```json")
 
     questions_text = parts[0]
-    answers_text = parts[1] if len(parts) > 1 else ""
+    answers_text = parts2[0]
     json_text = parts2[1]
 
     #print(questions_text)
     #print(answers_text)
-    print(json_text)
+    #print(json_text)
 
     st.write(questions_text)
     content = [questions_text,answers_text,json_text]
@@ -134,14 +143,58 @@ def main():
     
     if st.sidebar.button("Generate Quiz/Test", on_click=setQuiz):
         st.session_state.option = 'quiz'
+    if st.sidebar.button("Practice Questions", key="practice"):
+        st.session_state.option = 'practice'
 
     if st.session_state.option == 'quiz':
         display_quiz_details()
+    if st.session_state.option == 'practice':
+        take_practice_quiz()
 
     if st.session_state.get("confirm_quiz", False):
-        if st.sidebar.button("Take "+ st.session_state.content_type, key="quizortest", on_click=setPage):
+        if st.sidebar.button("Take "+ st.session_state.content_type, key="quizortest", on_click= setPage):
+            display_quiz()
+        elif st.session_state.option == 'take quiz/test':
             display_quiz()
             
+def take_practice_quiz():
+    content = st.empty()
+    content.write("Generating question...")
+    if 'current_question_index' not in st.session_state:
+        st.session_state.current_question_index = 0
+        st.session_state.correct_p_answers = 0
+        st.session_state.current_p_answers = None
+        st.session_state.current_p_question = None
+        st.session_state.current_p_options = None
+        st.session_state.practice_thread = None  # Initialize thread state
+        st.session_state.next_question = False
+
+        thread = client.beta.threads.create()
+        st.session_state.practice_thread = thread.id
+        print("Thread created")
+        st.session_state.current_p_question, st.session_state.current_p_options, st.session_state.current_p_answers = practice_question_generation(st.session_state.practice_thread)
+        content = st.empty()
+        content2 = st.empty()
+
+    # Display the current count
+    content.write(f"Question: " + st.session_state.current_p_question)
+    content2 = st.radio("Choose an answer:", st.session_state.current_p_options, key=f"question_{st.session_state.current_question_index}")
+    
+    col1, col2 = st.columns(2)
+
+    if col2.button("Next Question"):
+        st.session_state.current_question_index += 1
+        if content2 == st.session_state.current_p_answers:
+            st.session_state.correct_p_answers += 1
+        print (st.session_state.current_question_index)
+        st.session_state.current_p_question, st.session_state.current_p_options, st.session_state.current_p_answers = practice_question_generation(st.session_state.practice_thread)
+
+    if col1.button("End Practice"):
+        if content2 == st.session_state.current_p_answers:
+            st.session_state.correct_p_answers += 1
+        st.write(f"Practice Completed! You got {str(st.session_state.correct_p_answers)} out of {str(st.session_state.current_question_index + 1)} questions right.")
+
+
 
 def display_quiz_details():
     #keep track if confirm quiz button is clicked
@@ -167,9 +220,9 @@ def display_quiz_details():
     multiple_choice = st.checkbox("Multiple Choice", key= "mc")
     short_answer = st.checkbox("Short Answer", key="short_answer")
 
-    num_questions_quiz = st.number_input("Number of Questions for Quiz", min_value=1, max_value=25, value=None, key='num_questions_quiz')
-    start_week_quiz = st.number_input("Start Week for Quiz", min_value=1, max_value=10, value=None, key='start_week_quiz')
-    end_week_quiz = st.number_input("End Week for Quiz", min_value=start_week_quiz, max_value=10, value=None, key='end_week_quiz')
+    num_questions_quiz = st.number_input("Number of Questions for "+quiz_or_test, min_value=1, max_value=25, value=None, key='num_questions_quiz')
+    start_week_quiz = st.number_input("Start Week for " +quiz_or_test, min_value=1, max_value=10, value=None, key='start_week_quiz')
+    end_week_quiz = st.number_input("End Week for "+quiz_or_test, min_value=start_week_quiz, max_value=10, value=None, key='end_week_quiz')
     
     st.write ("Are there any specific topic(s) you want a heavier emphasis on?")
     # Dictionary to store the status of checkboxes
@@ -247,9 +300,9 @@ def display_quiz_details():
                 st.session_state.json = json_string
                 
                 # Display the quiz if the button was clicked
-                # if st.session_state.get("quiz_started", False):
-                #   take_quiz(quiz_data,quiz_or_test)
-                #
+                if st.session_state.get("quiz_started", False):
+                   take_quiz(json_string,quiz_or_test)
+                
 
         #reset app
         if st.button("Start Over"):
@@ -261,6 +314,7 @@ def display_quiz():
     st.write("Answer each question to the best of your ability!")
     if "content" in st.session_state:
         json_string = st.session_state.json
+        print(json_string)
            
         # Now you can parse the JSON string
         try:
@@ -271,9 +325,9 @@ def display_quiz():
             print(f"Error decoding JSON: {e}")
             quiz_data = json.loads(json_string)
         
-    # Display the quiz if the button was clicked
-    if st.session_state.get("quiz_started", False):
+        st.session_state.option = 'take quiz/test'
         quiz_or_test = st.session_state.content_type
+        print("taking " + quiz_or_test)
         take_quiz(quiz_data,quiz_or_test)
 
 def generate_txt_file(type,text):
@@ -286,10 +340,10 @@ def generate_txt_file(type,text):
 
 # Function to run the quiz
 def take_quiz(questions, test_type):
+    print ("taking quiz/test")
     if 'current_question' not in st.session_state:
         st.session_state.current_question = 0
         st.session_state.correct_answers = 0
-
     question = questions[st.session_state.current_question]
     st.write(f"Question {st.session_state.current_question + 1}: {question['question']}")
 
@@ -305,9 +359,89 @@ def take_quiz(questions, test_type):
             st.session_state.correct_answers += 1
         if not is_last_question:
             st.session_state.current_question += 1
-            st.rerun()
         else:
             st.write(f"Quiz Completed! You got {st.session_state.correct_answers} out of {len(questions)} questions right.")
+
+def display_practice():
+   # Initialize state variables
+    if 'start_practice' not in st.session_state:
+        st.session_state.start_practice = False
+        st.session_state.current_question_index = 0
+        st.session_state.correct_p_answers = None
+        st.session_state.current_p_question = "TestQ"
+        st.session_state.current_p_options = "A"
+        st.session_state.practice_thread = None  # Initialize thread state
+        st.session_state.next_question = False
+
+    if st.button("Start Practice Questions") and not st.session_state.start_practice:
+        st.session_state.start_practice = True
+
+        # Create a thread only if it hasn't been created yet
+        if st.session_state.practice_thread is None:
+            thread = client.beta.threads.create()
+            st.session_state.practice_thread = thread.id
+            print("Thread created")
+            #practice_question_generation(thread.id)
+
+        if st.session_state.start_practice:     
+            take_practice_quiz()
+        
+
+def practice_question_generation(thread):
+    message = client.beta.threads.messages.create(
+    thread_id=thread,
+    role="user",
+    content= ("Write '''json and write the JSON CODE for EXACTLY ONE multiple choice question about the content of the class from weeks 1 - 10. The answer options should have letter choices. Format the response in JSON like this format: [{\"question\",  \"options\":, \"answer\":}], and only give me the response in JSON format. For every response format it exactly like this and give me this output.")
+    )
+
+    print("Message Created for Practice")
+
+    time.sleep(10)
+    run = client.beta.threads.runs.create(
+        thread_id=thread,
+        assistant_id="asst_C3Iyis7iFQ0HP7PFseOl1zZz"
+    )
+    print("First run created")
+
+    time.sleep(10)
+    run_status = client.beta.threads.runs.retrieve(
+        thread_id=thread,
+        run_id=run.id
+    )
+    print("Attempting to retrieve run")
+
+    while run_status.status!= "completed":
+        # Retrieve the run status
+        run_status = client.beta.threads.runs.retrieve(
+            thread_id=thread,
+            run_id=run.id
+        )
+
+        time.sleep(10)
+        print(run_status.status)
+        
+        if (run_status.status=="failed"):
+            print("failed")
+            break
+
+    # Once the run is complete, retrieve and print messages
+    messages = client.beta.threads.messages.list(
+        thread_id=thread
+    )
+
+    content = messages.data[0].content[0].text.value
+    part1 = content.split("'''json")
+    part1 = part1[0].split("'''")
+    print("loading json")
+    print(part1[0])
+    json_string = part1[0]
+    question_data = json.loads(json_string)
+    for item in question_data:
+        questions = item['question']
+        options = item['options']
+        answer = item['answer']
+
+    return questions, options, answer
 
 
 if __name__ == "__main__":
