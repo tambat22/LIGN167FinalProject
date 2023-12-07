@@ -145,12 +145,17 @@ def main():
         st.session_state.option = 'quiz'
     if st.sidebar.button("Practice Questions", key="practice"):
         st.session_state.option = 'practice'
-
+    if st.sidebar.button("Generate Adaptive Assessment"):
+        st.session_state.option = 'adaptive'
+        
     if st.session_state.option == 'quiz':
         display_quiz_details()
     if st.session_state.option == 'practice':
         take_practice_quiz()
-
+    if st.session_state.option == 'adaptive':
+        #Hard code number of questions to 3 (due to api limit)
+        display_interactive_test(3)
+    
     if st.session_state.get("confirm_quiz", False):
         if st.sidebar.button("Take "+ st.session_state.content_type, key="quizortest", on_click= setPage):
             display_quiz()
@@ -443,6 +448,152 @@ def practice_question_generation(thread):
 
     return questions, options, answer
 
+def interactive_test(thread,question_number,numQuestions,difficulty):
+    print("thread created")
+    #time.sleep(10)
+    #TODO Make questions use topic from argument instead of hard coding
+    # gpt_query = "Give me a practice question on either the topic of japanese syntax or turkish syntax. Then you MUST write 'JSON code' followed by JSON code for the quiz in a a JSON format following: [{question,options,correct_option,explanation, and difficulty}]." \
+    
+    # else:
+    gpt_query = f"Generate EXACTLY ONE practice question of {difficulty} difficulty based on any topic covered in the provided materials. MAKE SURE YOU DO NOT GIVE ME A REPEAT QUESTION. Then you MUST write THIS EXACT STRING : '$JSON' followed by JSON code for the quiz in a a JSON format following: [{{question,options,correct option,explanation, and difficulty}}]. MAKE SURE OPTIONS IS ENCODED AS A DICTIONARY"
+    
+    message = client.beta.threads.messages.create(
+        thread_id=thread.id,
+        role="user",
+        content = gpt_query)
+    print("message created")
+    time.sleep(5)
+    
+    run = client.beta.threads.runs.create(
+        thread_id = thread.id,
+        assistant_id = "asst_kO68ZsnTzqtfhLaHTMws9dsF"
+    )    
+    print("First run created")
+    time.sleep(5)
+    run_status = client.beta.threads.runs.retrieve(thread_id=thread.id,run_id=run.id)
+    
+    print("attempting to retrieve run ")
+    #wait until run is completed
+    while run_status.status!= "completed":
+        # Retrieve the run status
+        run_status = client.beta.threads.runs.retrieve(
+            thread_id=thread.id,
+            run_id=run.id
+        )
 
+        #time.sleep(10)
+        print(run_status.status)
+        
+        if (run_status.status=="failed"):
+            print("failed")
+            break
+    messages = client.beta.threads.messages.list(
+        thread_id=thread.id
+    )
+    content = messages.data[0].content[0].text.value
+    # Split the text into questions and answers
+    # parts = content.split("Answers:")
+    # parts2 = content.split("```json")
+
+    # questions_text = parts[0]
+    # answers_text = parts[1] if len(parts) > 1 else ""
+    # json_text = parts2[1]
+    print("PRINTING PARTS ____________________________")
+    print(content)
+    return content     
+def display_interactive_test(max_questions):
+    thread = client.beta.threads.create()       
+    #
+    difficulties = {1 : 'easy', 2 : 'medium', 3 : 'hard'}
+    st.session_state.difficulty = 1
+    if 'feedback' not in st.session_state:
+        st.session_state.feedback = ""
+    
+    #After each question is answered, add Question (Difficulty) new line Solution new Line to build feedback
+    if 'test_started' not in st.session_state:
+        st.write("This is a comprehensive practice final exam of adaptive difficulty. The questions can cover any aspect of the course.")
+        st.session_state.test_started = False
+    
+    if 'test_started' in st.session_state and st.session_state.test_started and st.session_state.latest_question != "":
+        print("QUESTION NUMBER",st.session_state.current_question)
+        # st.write(st.session_state.latest_question)
+        question = st.session_state.latest_question
+        options = question["options"]
+        formatted_options = [f"{key}: {value}" for key, value in options.items()]
+
+        st.write(f"Question {st.session_state.current_question}: {question['question']}")
+        st.session_state.user_answer = st.radio("Choose an answer:", formatted_options, key=f"question_{st.session_state.current_question}").split(":")[0]
+        st.session_state.correct_answer = question['correct_option']
+    
+    if 'current_question' not in st.session_state:
+        st.session_state.current_question = 0
+        st.session_state.correct_answers = 0
+        st.session_state.latest_question = ""
+    
+    is_last_question = st.session_state.current_question == max_questions
+    button_label = "Submit Quiz" if is_last_question else ("Next Question" if st.session_state.test_started else "Begin Assessment" )
+    # print("SESSION STATE : ",st.session_state.test_started)
+    
+    if st.button(button_label):
+        
+        if button_label == "Begin Assessment":
+            st.session_state.test_started = True
+            st.session_state.current_question += 1
+            #st.session_state.latest_question = (parse_interactive_json(test_response())[0])
+            st.session_state.latest_question = (parse_interactive_json(interactive_test(thread,st.session_state.current_question,max_questions,difficulties[st.session_state.difficulty]))[0])
+            #Starting difficulty is 1 
+            st.session_state.difficulty = 1
+            st.experimental_rerun()
+        
+        elif button_label == "Next Question":
+            # st.session_state.current_question += 1
+            st.session_state.latest_question = (parse_interactive_json(interactive_test(thread,st.session_state.current_question,max_questions,difficulties[st.session_state.difficulty]))[0])
+            #st.session_state.latest_question = (parse_interactive_json(test_response())[0])
+            if st.session_state.user_answer == st.session_state.correct_answer:
+                st.session_state.correct_answers += 1
+                print("CORERCT")
+                #If they get it correct, give a medium/hard question
+                st.session_state.difficulty = random.randint(2,3)
+            
+            #They answered incorrectly
+            else:
+                st.session_state.difficulty = 1 if (st.session_state.difficulty == 1 or st.session_state.difficulty == 2) else 2
+            st.session_state.feedback = st.session_state.feedback + f"Solution for Question {st.session_state.current_question} ({difficulties[st.session_state.difficulty]}): \n {st.session_state.latest_question['explanation']} So, the correct answer was {st.session_state.latest_question['correct_option']}"
+            print("updated feedback",st.session_state.feedback)
+            st.session_state.current_question += 1
+            st.experimental_rerun()
+        
+        #Submit button    
+        else:
+            st.session_state.feedback = st.session_state.feedback + f"Solution for Question {st.session_state.current_question} ({difficulties[st.session_state.difficulty]}): \n {st.session_state.latest_question['explanation']} So, the correct answer was {st.session_state.latest_question['correct_option']}"
+            #print("updated feedback",st.session_state.feedback)
+            # st.session_state.current_question += 1
+            #st.experimental_rerun()
+            st.write("Here is detailed feedback on your performance: ")
+            st.write(f"Score : {st.session_state.correct_answers}/{max_questions}")
+            st.write("Question Breakdown:")
+            
+            print("final feedback",st.session_state.feedback)
+            #for some resaon st.write not working with newline char? loop and write instead
+            for substr in st.session_state.feedback.split('Solution for')[1:]:
+                st.write('Feedback for ' + substr)
+    
+def parse_interactive_json(response):
+    print("UPDATED JSON")
+    json_string = response.split("$JSON")[1].strip('```')
+    try:
+        res = json.loads(json_string)
+        print("Interactive Json parsed successfully")
+        # Further processing...
+    except json.JSONDecodeError as e:
+        print(f"Error decoding JSON: {e}")
+        res = json.loads(json_string)
+    return res
+#Hard coded json response for testing results. 
+def test_response():
+    return """  Now, here is the JSON code for the quiz: 
+``` $JSON[{"question": "What is the default word order in Turkish?","options": {"a": "Subject-Object-Verb (SOV)","b": "Subject-Verb-Object (SVO)", \
+"c": "Verb-Subject-Object (VSO)", "d": "Verb-Object-Subject (VOS)"}, "correct_option": "a","explanation": "The default word order in Turkish is Subject-Object-Verb (SOV). This means that the subject comes first, followed by the object, and then the verb."}]
+```"""
 if __name__ == "__main__":
     main()
