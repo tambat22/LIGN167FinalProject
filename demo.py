@@ -139,8 +139,8 @@ def main():
     
     if st.sidebar.button("Generate Quiz/Test", on_click=setQuiz):
         st.session_state.option = 'quiz'
-    if st.sidebar.button("Practice Questions", key="practice"):
-        st.session_state.option = 'practice'
+    #if st.sidebar.button("Practice Questions", key="practice"):
+    #    st.session_state.option = 'practice'
     if st.sidebar.button("Generate Adaptive Assessment"):
         st.session_state.option = 'adaptive'
         
