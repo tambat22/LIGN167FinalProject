@@ -4,6 +4,8 @@ import os
 from dotenv import load_dotenv
 import time
 import json
+from collections import deque
+
 
 #run 'source .venv/bin/activate' on mac
 #$ streamlit run demo.py
@@ -15,9 +17,16 @@ load_dotenv()
 client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'),organization=os.getenv('OPENAI_ORG_ID'))
 assistant = client.beta.assistants.retrieve("asst_C3Iyis7iFQ0HP7PFseOl1zZz")
 
+#assistant = client.beta.assistants.update(
+# "asst_C3Iyis7iFQ0HP7PFseOl1zZz",
+# instructions="You are a linguistics assistant for an upper division intro to linguistics course at UCSD. Your task is to help the professor generate the indicated or quiz with the specified number of questions on the relevant content indicated. Only use the materials provided in the files to generate the questions for the test or quiz, do not copy the questions but make your own questions. Give me all of the following in one response: generate all of the questions, followed by the answers, and then write $JSON before printing the JSON code as needed.",
+# model="gpt-3.5-turbo-1106"
+#)
+
 #print(assistant)
 
-def generate_api(question_type,questions, content, start_week, end_week, topic):
+
+def generate_api(thread, question_type,questions, content, start_week, end_week, topic):
     thread = client.beta.threads.create()
     print("Thread Created")
     time.sleep(10)
@@ -28,8 +37,8 @@ def generate_api(question_type,questions, content, start_week, end_week, topic):
         content= ("Create a " + questions + " question " + question_type +" "+ content + " that only HAS EXACTLY " + questions + 
                   " questions that is about the " + topic + " from week " + start_week + " to " + 
                   " week " + end_week + ". All multiple choice questions should have letter optins. " + 
-                  "Format it like a quiz/test hand out. Title it " + content + "Then show the questions and answer choices. After write 'Answers' and give me answer key for the questions"+ 
-                  " Next write '''json followed by the JSON code for ONLY the multiple choice type questions in a a JSON format like this format: [{questions,  \"options\": [\"A) Noun\", \"B) Verb\", \"C) Adjective\", \"D) Pronoun\"], answer:}]. Make sure that the options have letter options as well." +
+                  "Format it like a quiz/test hand out. Title it " + content + "Then show the questions and letter choices. Next write 'Answers' and give me answers for each questions"+ 
+                  " Next write $JSON followed by the JSON code only containing the question, options, and answers in a a JSON format like this format: [{questions,  \"options\": [\"A) Noun\", \"B) Verb\", \"C) Adjective\", \"D) Pronoun\"], answer:}]. Make sure that the options have letter options as well." +
                   " DO NOT WRITE anything else after the JSON code.")
     )
     print("Message Created")
@@ -68,25 +77,34 @@ def generate_api(question_type,questions, content, start_week, end_week, topic):
     )
 
     content = messages.data[0].content[0].text.value
+    return content
+
+def parse_json(content):
     print("Printing content of response:")
-    #print(content)
+    print(content)
     # Split the text into questions and answers
     parts = content.split("Answers")
-    print(parts)
-    parts2 = parts[1].split("```json")
+    parts2 = parts[1].split("$JSON")
 
     questions_text = parts[0]
     answers_text = parts2[0]
     json_text = parts2[1]
 
-    #print(questions_text)
-    #print(answers_text)
-    #print(json_text)
+    json_text = parse_interactive_json(content)
+
+    print(json_text)
 
     st.write(questions_text)
     content = [questions_text,answers_text,json_text]
     print("Run retrieved successfully")
     return content
+
+def update_history(name,history):
+    st.sidebar.title(name+" History")
+    for idx, file_info in enumerate(history):
+        file_name = file_info['file_name']
+        download_link = f"[{file_name}](Quiz History/{file_name})"
+        st.sidebar.write(f"{idx + 1}. {file_name} - [Download]({download_link})")  # Replace path_to_your_file with your actual path
 
 
 def main():
@@ -127,7 +145,7 @@ def main():
     st.sidebar.write("Practice Questions is a place for you to practice answering unlimited questions.")
     st.sidebar.write("The Generative Adaptive Assessment will provide feedback on a number of questions you wish to generate, this had been set to 3 due to API usage limitations.")
     st.sidebar.write("Press enter after each selection and wait for running to finish loading.")
-
+   
     # Using session state to track which option was selected
     if 'option' not in st.session_state:
         st.session_state.option = None
@@ -152,11 +170,11 @@ def main():
         #Hard code number of questions to 3 (due to api limit)
         display_interactive_test(3)
     
-    if st.session_state.get("confirm_quiz", False):
-        if st.sidebar.button("Take "+ st.session_state.content_type, key="quizortest", on_click= setPage):
-            display_quiz()
-        elif st.session_state.option == 'take quiz/test':
-            display_quiz()
+    #if st.session_state.get("confirm_quiz", False):
+    #    if st.sidebar.button("Take "+ st.session_state.content_type, key="quizortest", on_click= setPage):
+    #        display_quiz()
+    #    elif st.session_state.option == 'take quiz/test':
+    #        display_quiz()
             
 def take_practice_quiz():
     st.write("Practice answering questions to help you understand the content")
@@ -202,13 +220,31 @@ def take_practice_quiz():
             st.session_state.correct_p_answers += 1
         st.session_state.start_practice = False
         print(st.session_state.correct_p_answers)
-        st.write(f"Practice Completed! You got {str(st.session_state.correct_p_answers)} out of {str(st.session_state.current_question_index)} questions right.")
-
+        st.write(f"Practice Completed! You got {str(st.session_state.correct_p_answers)} out of {str(st.session_state.current_question_index)} questions right.") 
 
 def display_quiz_details():
+
+    if 'quiz_history' not in st.session_state:
+        st.session_state.quiz_history = deque(maxlen=5)  # Store the last 5 generated files
+        st.session_state.test_history = deque(maxlen=5)  # Store the last 5 generated files
+        st.session_state.answer_quiz_history = deque(maxlen=5)  # Store the last 5 generated files
+        st.session_state.answer_test_history = deque(maxlen=5)  # Store the last 5 generated files
+        st.session_state.data = None
+
+        thread = client.beta.threads.create()
+        st.session_state.thread = thread.id
+
+
+    if 'done_editing' not in st.session_state:
+        st.session_state.done_editing = False
+        st.session_state.edit_questions = False
+
+
     #keep track if confirm quiz button is clicked
     if 'confirm_quiz' not in st.session_state:
         st.session_state.confirm_quiz = False
+    st.session_state.questions = ""
+
     #tracking download buttons
     if 'quiz_txt' not in st.session_state:
         st.session_state.quiz_txt = False
@@ -288,30 +324,71 @@ def display_quiz_details():
         if st.button("Confirm "+quiz_or_test+" Details", key = "quiz"):
             generate_content_message.write(quiz_or_test + f" with {num_questions_quiz} question(s) covering weeks {start_week_quiz} to {end_week_quiz} is being generated...")
         
-            st.session_state.content = generate_api(question_type, str(num_questions_quiz), quiz_or_test, str(start_week_quiz), str(end_week_quiz), topic)
-            #st.session_state.content  = ["A","B","C"]
+            response = generate_api(st.session_state.thread,question_type, str(num_questions_quiz), quiz_or_test, str(start_week_quiz), str(end_week_quiz), topic)
+            st.session_state.content = parse_json(response)
+            #st.session_state.content = ["A","B","C"]
             generate_content_message.empty()
             st.session_state.confirm_quiz = True
+
+            if (quiz_or_test == "Quiz"):
+                file_name = f"Quiz_{len(st.session_state.quiz_history) + 1}.txt"  
+                # Update file history
+                st.session_state.quiz_history.append(({"file_name": file_name}))
+                file_name = f"Quiz Answers_{len(st.session_state.answer_quiz_history) + 1}.txt"  
+                # Update file history
+                st.session_state.answer_quiz_history.append(({"file_name": file_name}))
+
+            elif (quiz_or_test == "Test"): 
+                file_name = f"Test_{len(st.session_state.test_history) + 1}.txt"  
+                # Update file history
+                st.session_state.test_history.append(({"file_name": file_name}))
+
+                file_name = f"Test Answers_{len(st.session_state.answer_test_history) + 1}.txt"  
+                # Update file history
+                st.session_state.answer_test_history.append(({"file_name": file_name}))
+
+            st.session_state_data = update_history("Quiz",st.session_state.quiz_history), update_history("Quiz Answers",st.session_state.answer_quiz_history), update_history("Test",st.session_state.test_history), update_history("Test Answers",st.session_state.answer_test_history)
+
+
 
         if st.session_state.get("confirm_quiz", False):
             # Check if content is already generated and stored in session_state
             if "content" in st.session_state:
-                question_text, answers_text, json_text = st.session_state.content
+                question_text, answers_text, json_string = st.session_state.content
 
                 # Generate text files based on the stored content
                 generate_txt_file(quiz_or_test, question_text)
-                generate_txt_file("answers", "**Answers" + answers_text)
-
-                # Removing the leading and trailing triple quotes
-                json_string = json_text[:-3]
-                print(json_string)
+                generate_txt_file(quiz_or_test+" Answers", "**Answers" + answers_text)
+                
+                for item in json_string:
+                    st.session_state.questions = st.session_state.questions + item['question'] + "\n"
 
                 st.session_state.json = json_string
+
+                if st.button("Edit text of questions"):
+                    st.session_state.edit_questions = True
                 
+                if st.session_state.get("edit_questions", False):
+                    user_input = st.text_area("These are the questions:", st.session_state.questions, height=15)
+                    st.session_state.questions = user_input
+                    if st.button("Done"):
+                        print(st.session_state.questions)
+                        response = re_generation(st.session_state.thread, "Rewrite the "+quiz_or_test+" again, with the following questions: "+st.session_state.questions+ ".Format the response like a quiz or test with multiple choice options for each question. Then in a new line, write the heading Answers, and show me the answer key for the questions, and then write $JSON before the JSON code and give me the JSON code printed in this format [{questions,  \"options\": [\"A) Noun\", \"B) Verb\", \"C) Adjective\", \"D) Pronoun\"], answer:}].")
+                        st.session_state.content = parse_json(response)
+                        st.session_state.edit_questions = False
+
+                if (st.button("Fine-tune GPT prompting")):
+                    user_input = st.text_area("Input your specifications below:")
+                    st.session_state.prompt = user_input
+                    if st.button("Done"):
+                        print(st.session_state.prompt)
+                        response = re_generation(st.session_state.thread, st.session_state.prompt)
+                        st.session_state.content = parse_json(response)
+                        st.session_state.edit_questions = False
+
                 # Display the quiz if the button was clicked
-                if st.session_state.get("quiz_started", False):
-                   take_quiz(json_string,quiz_or_test)
-                
+                #if st.session_state.get("quiz_started", False):
+                #    take_quiz(json_string,quiz_or_test)
 
         #reset app
         if st.button("Start Over"):
@@ -324,20 +401,11 @@ def display_quiz():
     if "content" in st.session_state:
         json_string = st.session_state.json
         print(json_string)
-           
-        # Now you can parse the JSON string
-        try:
-            quiz_data = json.loads(json_string)
-            print("Data loads successfully")
-            # Further processing...
-        except json.JSONDecodeError as e:
-            print(f"Error decoding JSON: {e}")
-            quiz_data = json.loads(json_string)
         
         st.session_state.option = 'take quiz/test'
         quiz_or_test = st.session_state.content_type
         print("taking " + quiz_or_test)
-        take_quiz(quiz_data,quiz_or_test)
+        take_quiz(json_string,quiz_or_test)
 
 def generate_txt_file(type,text):
         btn = st.download_button(
@@ -346,7 +414,7 @@ def generate_txt_file(type,text):
         file_name=type+".txt",
         mime="text/plain",
         key = "download_"+type)
-
+        
 # Function to run the quiz
 def take_quiz(questions, test_type):
     print ("taking quiz/test")
@@ -371,14 +439,14 @@ def take_quiz(questions, test_type):
         else:
             st.write(f"Quiz Completed! You got {st.session_state.correct_answers} out of {len(questions)} questions right.")
 
-def practice_question_generation(thread):
+def re_generation(thread, content):
     message = client.beta.threads.messages.create(
     thread_id=thread,
     role="user",
-    content= ("Write the JSON CODE for EXACTLY ONE multiple choice question about the content of the class from weeks 1 - 10. Format the response in JSON like this format: [{\"question\":,  \"options\": {\"A\": \"Red\",\"B\":\"Yellow\"}, \"answer\":}], and only give me the response in JSON format. ONLY give me one question in JSON format.")
+    content= content
     )
 
-    print("Message Created for Practice")
+    print("Message Created for Regeneration")
 
     time.sleep(10)
     run = client.beta.threads.runs.create(
@@ -414,18 +482,7 @@ def practice_question_generation(thread):
     )
 
     content = messages.data[0].content[0].text.value
-    part1 = content.split("```json")
-    part1 = part1[1].split("```")
-    print("loading json")
-    print(part1[0])
-    json_string = part1[0]
-    question_data = json.loads(json_string)
-    for item in question_data:
-        questions = item['question']
-        options = item['options']
-        answer = item['answer']
-
-    return questions, options, answer
+    return content
 
 def interactive_test(thread,question_number,numQuestions,difficulty):
     print("thread created")
@@ -562,7 +619,7 @@ def parse_interactive_json(response):
     json_string = response.split("$JSON")[1].strip('```')
     try:
         res = json.loads(json_string)
-        print("Interactive Json parsed successfully")
+        print("JSON parsed successfully")
         # Further processing...
     except json.JSONDecodeError as e:
         print(f"Error decoding JSON: {e}")
@@ -574,5 +631,6 @@ def test_response():
 ``` $JSON[{"question": "What is the default word order in Turkish?","options": {"a": "Subject-Object-Verb (SOV)","b": "Subject-Verb-Object (SVO)", \
 "c": "Verb-Subject-Object (VSO)", "d": "Verb-Object-Subject (VOS)"}, "correct_option": "a","explanation": "The default word order in Turkish is Subject-Object-Verb (SOV). This means that the subject comes first, followed by the object, and then the verb."}]
 ```"""
+
 if __name__ == "__main__":
     main()
